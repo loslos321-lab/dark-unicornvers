@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useImperativeHandle } from "react";
 
 export interface VectorFieldSettings {
   bgTop: string;
