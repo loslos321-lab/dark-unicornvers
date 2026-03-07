@@ -49,8 +49,9 @@ interface Props {
   className?: string;
 }
 
-export default function VectorFieldCanvas({ settings, className }: Props) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+const VectorFieldCanvas = React.forwardRef<HTMLCanvasElement, Props>(({ settings, className }, ref) => {
+  const innerRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = (ref as React.RefObject<HTMLCanvasElement>) || innerRef;
   const timeRef = useRef(0);
   const animRef = useRef<number>(0);
 
