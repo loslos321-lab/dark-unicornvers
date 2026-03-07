@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useImperativeHandle } from "react";
 
 export interface VectorFieldSettings {
   bgTop: string;
@@ -50,8 +50,8 @@ interface Props {
 }
 
 const VectorFieldCanvas = React.forwardRef<HTMLCanvasElement, Props>(({ settings, className }, ref) => {
-  const innerRef = useRef<HTMLCanvasElement>(null);
-  const canvasRef = (ref as React.RefObject<HTMLCanvasElement>) || innerRef;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useImperativeHandle(ref, () => canvasRef.current as HTMLCanvasElement);
   const timeRef = useRef(0);
   const animRef = useRef<number>(0);
 
