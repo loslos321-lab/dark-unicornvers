@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 
 export interface VectorFieldSettings {
   bgTop: string;
@@ -164,8 +164,7 @@ const VectorFieldCanvas = React.forwardRef<HTMLCanvasElement, Props>(({ settings
   }, [draw]);
 
   return <canvas ref={canvasRef} className={className} style={{ width: "100%", height: "100%" }} />;
-}
+});
 
-export function getCanvasRef(canvas: HTMLCanvasElement) {
-  return canvas;
-}
+VectorFieldCanvas.displayName = "VectorFieldCanvas";
+export default VectorFieldCanvas;
