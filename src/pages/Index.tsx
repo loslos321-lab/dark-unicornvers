@@ -4,7 +4,8 @@ import ControlPanel from "@/components/ControlPanel";
 import CryptoPanel from "@/components/CryptoPanel";
 import PublicChat from "@/components/PublicChat";
 import HowToUse from "@/components/HowToUse";
-import { Shield, Lock, Sliders, Globe, Info, Menu } from "lucide-react";
+import HostedRooms from "@/components/HostedRooms";
+import { Shield, Lock, Sliders, Globe, Info, Menu, DoorOpen } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
