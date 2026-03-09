@@ -35,6 +35,8 @@ function PanelContent({
       return <CryptoPanel canvasRef={canvasRef} />;
     case "public":
       return <PublicChat />;
+    case "rooms":
+      return <HostedRooms />;
     case "field":
       return <ControlPanel settings={settings} onChange={setSettings} />;
     case "help":
