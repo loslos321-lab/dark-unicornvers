@@ -9,10 +9,11 @@ import { Shield, Lock, Sliders, Globe, Info, Menu, DoorOpen } from "lucide-react
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
-type PanelTab = "crypto" | "field" | "public" | "help";
+type PanelTab = "crypto" | "field" | "public" | "rooms" | "help";
 
 const tabs: { key: PanelTab; label: string; icon: React.ElementType }[] = [
   { key: "crypto", label: "CRYPTO", icon: Lock },
+  { key: "rooms", label: "ROOMS", icon: DoorOpen },
   { key: "public", label: "PUBLIC", icon: Globe },
   { key: "field", label: "FIELD", icon: Sliders },
   { key: "help", label: "GUIDE", icon: Info },
