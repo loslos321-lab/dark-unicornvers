@@ -4,14 +4,16 @@ import ControlPanel from "@/components/ControlPanel";
 import CryptoPanel from "@/components/CryptoPanel";
 import PublicChat from "@/components/PublicChat";
 import HowToUse from "@/components/HowToUse";
-import { Shield, Lock, Sliders, Globe, Info, Menu } from "lucide-react";
+import HostedRooms from "@/components/HostedRooms";
+import { Shield, Lock, Sliders, Globe, Info, Menu, DoorOpen } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
-type PanelTab = "crypto" | "field" | "public" | "help";
+type PanelTab = "crypto" | "field" | "public" | "rooms" | "help";
 
 const tabs: { key: PanelTab; label: string; icon: React.ElementType }[] = [
   { key: "crypto", label: "CRYPTO", icon: Lock },
+  { key: "rooms", label: "ROOMS", icon: DoorOpen },
   { key: "public", label: "PUBLIC", icon: Globe },
   { key: "field", label: "FIELD", icon: Sliders },
   { key: "help", label: "GUIDE", icon: Info },
@@ -33,6 +35,8 @@ function PanelContent({
       return <CryptoPanel canvasRef={canvasRef} />;
     case "public":
       return <PublicChat />;
+    case "rooms":
+      return <HostedRooms />;
     case "field":
       return <ControlPanel settings={settings} onChange={setSettings} />;
     case "help":
