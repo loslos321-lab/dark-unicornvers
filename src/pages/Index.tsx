@@ -5,15 +5,17 @@ import CryptoPanel from "@/components/CryptoPanel";
 import PublicChat from "@/components/PublicChat";
 import HowToUse from "@/components/HowToUse";
 import HostedRooms from "@/components/HostedRooms";
-import { Shield, Lock, Sliders, Globe, Info, Menu, DoorOpen } from "lucide-react";
+import SecretLinks from "@/components/SecretLinks";
+import { Shield, Lock, Sliders, Globe, Info, Menu, DoorOpen, Link2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
-type PanelTab = "crypto" | "field" | "public" | "rooms" | "help";
+type PanelTab = "crypto" | "field" | "public" | "rooms" | "links" | "help";
 
 const tabs: { key: PanelTab; label: string; icon: React.ElementType }[] = [
   { key: "crypto", label: "CRYPTO", icon: Lock },
   { key: "rooms", label: "ROOMS", icon: DoorOpen },
+  { key: "links", label: "LINKS", icon: Link2 },
   { key: "public", label: "PUBLIC", icon: Globe },
   { key: "field", label: "FIELD", icon: Sliders },
   { key: "help", label: "GUIDE", icon: Info },
@@ -40,6 +42,9 @@ function PanelContent({
       </div>
       <div className={`h-full ${active === "rooms" ? "" : "hidden"}`}>
         <HostedRooms />
+      </div>
+      <div className={`h-full ${active === "links" ? "" : "hidden"}`}>
+        <SecretLinks />
       </div>
       <div className={`h-full ${active === "field" ? "" : "hidden"}`}>
         <ControlPanel settings={settings} onChange={setSettings} />
