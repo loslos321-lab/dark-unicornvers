@@ -6,11 +6,12 @@ import PublicChat from "@/components/PublicChat";
 import HowToUse from "@/components/HowToUse";
 import HostedRooms from "@/components/HostedRooms";
 import SecretLinks from "@/components/SecretLinks";
-import { Shield, Lock, Sliders, Globe, Info, Menu, DoorOpen, Link2 } from "lucide-react";
+import Tools from "@/components/Tools"; // NEU
+import { Shield, Lock, Sliders, Globe, Info, Menu, DoorOpen, Link2, Wrench } from "lucide-react"; // Wrench hinzugefügt
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
-type PanelTab = "crypto" | "field" | "public" | "rooms" | "links" | "help";
+type PanelTab = "crypto" | "field" | "public" | "rooms" | "links" | "help" | "tools"; // "tools" hinzugefügt
 
 const tabs: { key: PanelTab; label: string; icon: React.ElementType }[] = [
   { key: "crypto", label: "CRYPTO", icon: Lock },
@@ -19,6 +20,7 @@ const tabs: { key: PanelTab; label: string; icon: React.ElementType }[] = [
   { key: "public", label: "PUBLIC", icon: Globe },
   { key: "field", label: "FIELD", icon: Sliders },
   { key: "help", label: "GUIDE", icon: Info },
+  { key: "tools", label: "TOOLS", icon: Wrench }, // NEU
 ];
 
 function PanelContent({
@@ -51,6 +53,9 @@ function PanelContent({
       </div>
       <div className={`h-full ${active === "help" ? "" : "hidden"}`}>
         <HowToUse />
+      </div>
+      <div className={`h-full ${active === "tools" ? "" : "hidden"}`}> {/* NEU */}
+        <Tools />
       </div>
     </div>
   );
