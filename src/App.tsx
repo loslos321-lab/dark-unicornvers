@@ -1,3 +1,4 @@
+import { Component, ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,23 +8,38 @@ import Index from "./pages/Index";
 import SecretView from "./pages/SecretView";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+// SICHER: Kein Caching von Secrets
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { cacheTime: 0, staleTime: 0, refetchOnWindowFocus: false, retry: false },
+  },
+});
+
+class SecurityErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
+  constructor(props: {children: ReactNode}) { super(props); this.state = { hasError: false }; }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: Error) { console.error("Security error:", error); }
+  render() {
+    if (this.state.hasError) return <div className="p-8 text-center">Security error. Please refresh.</div>;
+    return this.props.children;
+  }
+}
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/secret/:id" element={<SecretView />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <SecurityErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster /><Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/secret/:id" element={<SecretView />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </SecurityErrorBoundary>
 );
 
 export default App;
