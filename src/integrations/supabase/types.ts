@@ -41,6 +41,39 @@ export type Database = {
         }
         Relationships: []
       }
+      secret_links: {
+        Row: {
+          created_at: string
+          encrypted_message: string
+          expires_at: string | null
+          id: string
+          password_hash: string | null
+          password_protected: boolean
+          viewed: boolean
+          viewed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          encrypted_message: string
+          expires_at?: string | null
+          id?: string
+          password_hash?: string | null
+          password_protected?: boolean
+          viewed?: boolean
+          viewed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          encrypted_message?: string
+          expires_at?: string | null
+          id?: string
+          password_hash?: string | null
+          password_protected?: boolean
+          viewed?: boolean
+          viewed_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
