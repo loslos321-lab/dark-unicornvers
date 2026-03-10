@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import SecretView from "./pages/SecretView";
 import NotFound from "./pages/NotFound";
-import Tools from "./pages/Tools";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,7 +33,6 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/secret/:id" element={<SecretView />} />
-            <Route path="/tools" element={<Tools />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
