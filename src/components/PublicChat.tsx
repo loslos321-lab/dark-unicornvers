@@ -81,9 +81,15 @@ export default function PublicChat() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {messages.length === 0 && (
-          <p className="text-xs text-muted-foreground text-center py-8 font-mono">
-            No messages yet. Say hello!
-          </p>
+          <div className="text-center py-8 space-y-2">
+            <Globe className="w-8 h-8 text-primary/30 mx-auto" />
+            <p className="text-xs text-muted-foreground font-mono">
+              No messages yet. Say hello!
+            </p>
+            <p className="text-xs text-muted-foreground/60">
+              Messages are live and ephemeral — visible to everyone online.
+            </p>
+          </div>
         )}
         {messages.map((m) => (
           <div

@@ -30,18 +30,25 @@ function PanelContent({
   setSettings: (s: VectorFieldSettings) => void;
   canvasRef: React.RefObject<HTMLCanvasElement>;
 }) {
-  switch (active) {
-    case "crypto":
-      return <CryptoPanel canvasRef={canvasRef} />;
-    case "public":
-      return <PublicChat />;
-    case "rooms":
-      return <HostedRooms />;
-    case "field":
-      return <ControlPanel settings={settings} onChange={setSettings} />;
-    case "help":
-      return <HowToUse />;
-  }
+  return (
+    <div className="h-full relative">
+      <div className={`h-full ${active === "crypto" ? "" : "hidden"}`}>
+        <CryptoPanel canvasRef={canvasRef} />
+      </div>
+      <div className={`h-full ${active === "public" ? "" : "hidden"}`}>
+        <PublicChat />
+      </div>
+      <div className={`h-full ${active === "rooms" ? "" : "hidden"}`}>
+        <HostedRooms />
+      </div>
+      <div className={`h-full ${active === "field" ? "" : "hidden"}`}>
+        <ControlPanel settings={settings} onChange={setSettings} />
+      </div>
+      <div className={`h-full ${active === "help" ? "" : "hidden"}`}>
+        <HowToUse />
+      </div>
+    </div>
+  );
 }
 
 function TabBar({ active, onChange }: { active: PanelTab; onChange: (t: PanelTab) => void }) {
