@@ -126,7 +126,7 @@ export default function Index() {
 
       {/* Desktop side panel */}
       {!isMobile && (
-        <div className="w-80 flex flex-col h-full">
+        <div className="w-96 flex flex-col h-full">
           <TabBar active={activePanel} onChange={setActivePanel} />
           <div className="flex-1 overflow-hidden">
             <PanelContent
