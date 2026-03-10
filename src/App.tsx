@@ -8,7 +8,6 @@ import Index from "./pages/Index";
 import SecretView from "./pages/SecretView";
 import NotFound from "./pages/NotFound";
 
-// SICHER: Kein Caching von Secrets
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { cacheTime: 0, staleTime: 0, refetchOnWindowFocus: false, retry: false },
