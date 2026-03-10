@@ -5,11 +5,12 @@ import CryptoPanel from "@/components/CryptoPanel";
 import PublicChat from "@/components/PublicChat";
 import HowToUse from "@/components/HowToUse";
 import HostedRooms from "@/components/HostedRooms";
-import { Shield, Lock, Sliders, Globe, Info, Menu, DoorOpen } from "lucide-react";
+import SecretLinks from "@/components/SecretLinks";
+import { Shield, Lock, Sliders, Globe, Info, Menu, DoorOpen, Link2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
-type PanelTab = "crypto" | "field" | "public" | "rooms" | "help";
+type PanelTab = "crypto" | "field" | "public" | "rooms" | "links" | "help";
 
 const tabs: { key: PanelTab; label: string; icon: React.ElementType }[] = [
   { key: "crypto", label: "CRYPTO", icon: Lock },
