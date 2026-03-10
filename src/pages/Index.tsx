@@ -58,19 +58,19 @@ function PanelContent({
 
 function TabBar({ active, onChange }: { active: PanelTab; onChange: (t: PanelTab) => void }) {
   return (
-    <div className="flex border-b border-border bg-card">
+    <div className="flex border-b border-border bg-card overflow-x-auto">
       {tabs.map((t) => (
         <button
           key={t.key}
           onClick={() => onChange(t.key)}
-          className={`flex-1 py-2.5 text-xs font-mono transition-colors flex items-center justify-center gap-1.5 ${
+          className={`flex-shrink-0 flex-1 min-w-0 py-2.5 text-[10px] font-mono transition-colors flex items-center justify-center gap-1 px-1 ${
             active === t.key
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <t.icon className="w-3 h-3" />
-          <span className="hidden sm:inline">{t.label}</span>
+          <t.icon className="w-3 h-3 shrink-0" />
+          <span className="truncate">{t.label}</span>
         </button>
       ))}
     </div>
@@ -126,7 +126,7 @@ export default function Index() {
 
       {/* Desktop side panel */}
       {!isMobile && (
-        <div className="w-80 flex flex-col h-full">
+        <div className="w-96 flex flex-col h-full">
           <TabBar active={activePanel} onChange={setActivePanel} />
           <div className="flex-1 overflow-hidden">
             <PanelContent
