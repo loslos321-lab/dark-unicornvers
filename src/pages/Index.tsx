@@ -15,6 +15,7 @@ type PanelTab = "crypto" | "field" | "public" | "rooms" | "links" | "help";
 const tabs: { key: PanelTab; label: string; icon: React.ElementType }[] = [
   { key: "crypto", label: "CRYPTO", icon: Lock },
   { key: "rooms", label: "ROOMS", icon: DoorOpen },
+  { key: "links", label: "LINKS", icon: Link2 },
   { key: "public", label: "PUBLIC", icon: Globe },
   { key: "field", label: "FIELD", icon: Sliders },
   { key: "help", label: "GUIDE", icon: Info },
