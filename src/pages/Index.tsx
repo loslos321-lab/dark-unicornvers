@@ -43,6 +43,9 @@ function PanelContent({
       <div className={`h-full ${active === "rooms" ? "" : "hidden"}`}>
         <HostedRooms />
       </div>
+      <div className={`h-full ${active === "links" ? "" : "hidden"}`}>
+        <SecretLinks />
+      </div>
       <div className={`h-full ${active === "field" ? "" : "hidden"}`}>
         <ControlPanel settings={settings} onChange={setSettings} />
       </div>
