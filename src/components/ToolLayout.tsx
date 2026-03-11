@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Home, Menu } from "lucide-react";
+import { ArrowLeft, Home, Menu, Search, Split, Clipboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
