@@ -12,7 +12,7 @@ const tools = [
   description: "Viral physics simulator: Escaped balls spawn 2 more. Click to interact!",
   icon: Atom,
   path: "/tools/physics-sandbox",
-  ready: true,
+  ready: false,
  },
    {
     key: "phishing-detective",
