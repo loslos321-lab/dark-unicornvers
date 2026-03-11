@@ -18,15 +18,6 @@ interface ChatMessage {
   timestamp: number;
 }
 
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 export default function HostedRooms() {
   const [view, setView] = useState<"list" | "create" | "chat">("list");
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -56,17 +47,16 @@ export default function HostedRooms() {
 
   const fetchRooms = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("hosted_rooms")
+    // Use the public_rooms view that excludes password_hash
+    const { data, error } = await (supabase.from as any)("public_rooms")
       .select("id, name, created_by, created_at")
-      .eq("is_active", true)
       .order("created_at", { ascending: false });
     setLoading(false);
     if (error) {
       toast.error("Failed to load rooms");
       return;
     }
-    setRooms(data || []);
+    setRooms((data as Room[]) || []);
   };
 
   const createRoom = async () => {
@@ -74,7 +64,12 @@ export default function HostedRooms() {
       toast.error("Room name and password are required");
       return;
     }
-    const hash = await hashPassword(roomPassword);
+    // Hash password server-side with bcrypt
+    const { data: hash, error: hashError } = await supabase.rpc("hash_password_bcrypt", { password: roomPassword });
+    if (hashError || !hash) {
+      toast.error("Failed to create room");
+      return;
+    }
     const { error } = await supabase.from("hosted_rooms").insert({
       name: roomName.trim(),
       password_hash: hash,
@@ -97,14 +92,12 @@ export default function HostedRooms() {
       toast.error("Enter room password");
       return;
     }
-    const hash = await hashPassword(joinPassword);
-    const { data } = await supabase
-      .from("hosted_rooms")
-      .select("id")
-      .eq("id", joiningRoom.id)
-      .eq("password_hash", hash)
-      .single();
-    if (!data) {
+    // Verify password server-side via bcrypt RPC
+    const { data: isValid, error: rpcError } = await supabase.rpc("check_room_password", {
+      room_id: joiningRoom.id,
+      attempt: joinPassword,
+    });
+    if (rpcError || !isValid) {
       toast.error("Wrong password");
       return;
     }

@@ -79,7 +79,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_room_password: {
+        Args: { attempt: string; room_id: string }
+        Returns: boolean
+      }
+      hash_password_bcrypt: { Args: { password: string }; Returns: string }
+      verify_secret_link_password: {
+        Args: { attempt: string; link_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
