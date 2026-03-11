@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ToolsHub from "./pages/ToolsHub";
 import VectorCrypto from "./pages/VectorCrypto";
 import SecretView from "./pages/SecretView";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/" element={<ToolsHub />} />
             <Route path="/vector-crypto" element={<VectorCrypto />} />
             <Route path="/secret/:id" element={<SecretView />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

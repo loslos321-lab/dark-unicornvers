@@ -1,5 +1,9 @@
-import { Shield, Lock, Wrench, ArrowRight } from "lucide-react";
+import { Shield, Lock, Wrench, ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const tools = [
   {
@@ -47,6 +51,20 @@ export default function ToolsHub() {
             <ToolCard key={tool.key} tool={tool} />
           ))}
         </div>
+
+        {/* Premium CTA */}
+        <div className="mt-8 max-w-5xl rounded-lg border border-primary/30 bg-card p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <h3 className="font-mono font-semibold text-foreground text-sm">Unlock Premium Tools</h3>
+            </div>
+            <p className="text-muted-foreground text-xs font-mono">
+              One-time payment of $0.99 — get access to all current and future premium tools.
+            </p>
+          </div>
+          <PurchaseButton />
+        </div>
       </main>
 
       {/* Footer */}
@@ -56,6 +74,32 @@ export default function ToolsHub() {
         </p>
       </footer>
     </div>
+  );
+}
+
+function PurchaseButton() {
+  const [loading, setLoading] = useState(false);
+
+  const handlePurchase = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-payment");
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err: any) {
+      toast.error("Payment failed. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button onClick={handlePurchase} disabled={loading} className="font-mono shrink-0">
+      {loading ? "Loading…" : "Buy for $0.99"}
+    </Button>
   );
 }
 
