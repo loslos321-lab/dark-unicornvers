@@ -22,8 +22,7 @@ import PhishingDetective from "./components/tools/PhishingDetective";
 import CryptoSpeedrun from "./components/tools/CryptoSpeedrun";
 import SocialEngineeringDefense from "./components/tools/SocialEngineeringDefense";
 import StreamPlayer from "@/components/StreamPlayer";
-import PhysicsSandbox from "./components/tools/PhysicsSandbox";
-
+import PhysicsSandbox from "@/components/tools/PhysicsSandbox";
 
 const queryClient = new QueryClient({
   defaultOptions: {
