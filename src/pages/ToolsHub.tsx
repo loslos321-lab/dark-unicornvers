@@ -7,6 +7,14 @@ import { toast } from "sonner";
 
 const tools = [
   {
+  key: "physics-sandbox",
+  title: "Physics Sandbox",
+  description: "Viral physics simulator: Escaped balls spawn 2 more. Click to interact!",
+  icon: Atom,
+  path: "/tools/physics-sandbox",
+  ready: true,
+ },
+  {
     key: "vector-crypto",
     title: "Vector Crypto",
     description: "End-to-end encrypted messaging, one-time secret links, and hosted rooms.",
