@@ -9,6 +9,7 @@ import VectorCrypto from "./pages/VectorCrypto";
 import SecretView from "./pages/SecretView";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
+import Index from "./pages/index";  // oder Index von "./pages/Index"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,7 +34,7 @@ const App = () => (
         <Toaster /><Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<ToolsHub />} />
+            <Route path="/" element={<index />} />  // oder klein: index
             <Route path="/vector-crypto" element={<VectorCrypto />} />
             <Route path="/secret/:id" element={<SecretView />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
