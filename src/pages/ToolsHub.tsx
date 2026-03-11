@@ -92,7 +92,7 @@ const tools = [
     description: "Race against time to crack passwords and solve cryptographic puzzles.",
     icon: Trophy,
     path: "/tools/crypto-speedrun",
-    ready: false,
+    ready: true,
   },
   {
     key: "social-engineering-quiz",
