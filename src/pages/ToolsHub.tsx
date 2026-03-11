@@ -77,6 +77,32 @@ export default function ToolsHub() {
   );
 }
 
+function PurchaseButton() {
+  const [loading, setLoading] = useState(false);
+
+  const handlePurchase = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-payment");
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err: any) {
+      toast.error("Payment failed. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button onClick={handlePurchase} disabled={loading} className="font-mono shrink-0">
+      {loading ? "Loading…" : "Buy for $0.99"}
+    </Button>
+  );
+}
+
 function ToolCard({ tool }: { tool: (typeof tools)[number] }) {
   const content = (
     <div
