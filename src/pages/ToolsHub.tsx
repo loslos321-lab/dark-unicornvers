@@ -14,6 +14,14 @@ const tools = [
   path: "/tools/physics-sandbox",
   ready: true,
  },
+   {
+    key: "phishing-detective",
+    title: "Phishing Detective",
+    description: "Interactive game: Spot the fake emails, websites and social engineering attempts.",
+    icon: Target,
+    path: "/tools/phishing-detective",
+    ready: true,
+  },
   {
     key: "vector-crypto",
     title: "Vector Crypto",
