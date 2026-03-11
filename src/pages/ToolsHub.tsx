@@ -100,7 +100,7 @@ const tools = [
     description: "Interactive dialog simulator: Detect manipulation attempts and CEO fraud.",
     icon: BrainCircuit,
     path: "/tools/social-engineering-quiz",
-    ready: false,
+    ready: true,
   },
 ];
 
