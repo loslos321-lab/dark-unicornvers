@@ -20,6 +20,8 @@ import SecretSharing from "./components/tools/SecretSharing";
 import SecureClipboard from "./components/tools/SecureClipboard";
 import PhishingDetective from "./components/tools/PhishingDetective";
 import CryptoSpeedrun from "./components/tools/CryptoSpeedrun";
+import SocialEngineeringDefense from "./components/tools/SocialEngineeringDefense";
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +62,7 @@ const App = () => (
             <Route path="/tools/secure-clipboard" element={<SecureClipboard />} />
             <Route path="/tools/phishing-detective" element={<PhishingDetective />} />
             <Route path="/tools/crypto-speedrun" element={<CryptoSpeedrun />} />
+            <Route path="/tools/social-engineering-quiz" element={<SocialEngineeringDefense />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
