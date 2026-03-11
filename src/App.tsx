@@ -19,6 +19,7 @@ import BreachChecker from "./components/tools/BreachChecker";
 import SecretSharing from "./components/tools/SecretSharing";
 import SecureClipboard from "./components/tools/SecureClipboard";
 import PhishingDetective from "./components/tools/PhishingDetective";
+import CryptoSpeedrun from "./components/tools/CryptoSpeedrun";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/tools/secret-sharing" element={<SecretSharing />} />
             <Route path="/tools/secure-clipboard" element={<SecureClipboard />} />
             <Route path="/tools/phishing-detective" element={<PhishingDetective />} />
+            <Route path="/tools/crypto-speedrun" element={<CryptoSpeedrun />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
