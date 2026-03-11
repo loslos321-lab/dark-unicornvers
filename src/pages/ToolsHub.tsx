@@ -97,9 +97,9 @@ function PurchaseButton() {
   };
 
   return (
-    <Button onClick={handlePurchase} disabled={loading} className="font-mono shrink-0">
-      {loading ? "Loading…" : "Buy for $0.99"}
-    </Button>
+   // <Button onClick={handlePurchase} disabled={loading} className="font-mono shrink-0">
+     // {loading ? "Loading…" : "Buy for $0.99"}
+   // </Button>
   );
 }
 
