@@ -1,0 +1,105 @@
+import { Shield, Lock, Wrench, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const tools = [
+  {
+    key: "vector-crypto",
+    title: "Vector Crypto",
+    description: "End-to-end encrypted messaging, one-time secret links, and hosted rooms — powered by a living vector field.",
+    icon: Lock,
+    path: "/vector-crypto",
+    ready: true,
+  },
+  {
+    key: "coming-soon-1",
+    title: "More Tools",
+    description: "New security and privacy tools are on the way. Stay tuned.",
+    icon: Wrench,
+    path: "#",
+    ready: false,
+  },
+];
+
+export default function ToolsHub() {
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="border-b border-border px-6 py-5 flex items-center gap-3">
+        <Shield className="w-6 h-6 text-primary" />
+        <h1 className="text-lg font-bold font-mono text-foreground text-glow tracking-wide">
+          SECURITY TOOLKIT
+        </h1>
+      </header>
+
+      {/* Hero */}
+      <section className="px-6 pt-12 pb-6 max-w-3xl">
+        <p className="text-muted-foreground font-mono text-sm leading-relaxed">
+          A growing collection of privacy-first, client-side security tools.
+          <br />
+          Everything runs in your browser — nothing leaves your device unencrypted.
+        </p>
+      </section>
+
+      {/* Tools grid */}
+      <main className="flex-1 px-6 pb-12">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl">
+          {tools.map((tool) => (
+            <ToolCard key={tool.key} tool={tool} />
+          ))}
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border px-6 py-4">
+        <p className="text-muted-foreground font-mono text-[11px]">
+          All tools run client-side. Your data never leaves your browser unencrypted.
+        </p>
+      </footer>
+    </div>
+  );
+}
+
+function ToolCard({ tool }: { tool: (typeof tools)[number] }) {
+  const content = (
+    <div
+      className={`group relative rounded-lg border border-border bg-card p-6 transition-all duration-200 h-full flex flex-col ${
+        tool.ready
+          ? "hover:border-primary/50 hover:glow-primary cursor-pointer"
+          : "opacity-50 cursor-default"
+      }`}
+    >
+      <div className="flex items-center gap-3 mb-3">
+        <div className="p-2 rounded-md bg-secondary">
+          <tool.icon className="w-5 h-5 text-primary" />
+        </div>
+        <h2 className="font-mono font-semibold text-foreground text-sm tracking-wide">
+          {tool.title}
+        </h2>
+      </div>
+
+      <p className="text-muted-foreground text-xs leading-relaxed flex-1">
+        {tool.description}
+      </p>
+
+      {tool.ready && (
+        <div className="mt-4 flex items-center gap-1 text-primary text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">
+          Open <ArrowRight className="w-3 h-3" />
+        </div>
+      )}
+
+      {!tool.ready && (
+        <div className="mt-4 text-muted-foreground text-[10px] font-mono uppercase tracking-widest">
+          Coming soon
+        </div>
+      )}
+    </div>
+  );
+
+  if (!tool.ready) return content;
+
+  return (
+    <Link to={tool.path} className="no-underline">
+      {content}
+    </Link>
+  );
+}
