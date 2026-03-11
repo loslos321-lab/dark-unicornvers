@@ -30,6 +30,7 @@ const navItems = [
   { path: "/tools/phishing-detective", label: "Phishing Game" },
   { path: "/tools/crypto-speedrun", label: "Speedrun" },
   { path: "/tools/social-engineering-quiz", label: "SE Quiz" },
+  { path: "/tools/physics-sandbox", label: "Physics Sandbox" },
 ];
 
 export default function ToolLayout({ children, title, icon: Icon, description }: ToolLayoutProps) {
