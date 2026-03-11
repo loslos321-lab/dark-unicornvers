@@ -84,7 +84,7 @@ const tools = [
     description: "Interactive game: Spot the fake emails, websites and social engineering attempts.",
     icon: Target,
     path: "/tools/phishing-detective",
-    ready: false,
+    ready: true,
   },
   {
     key: "crypto-speedrun",
