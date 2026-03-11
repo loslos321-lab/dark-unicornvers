@@ -6,74 +6,154 @@ export const useOpenClaw = () => {
   const workerRef = useRef<Worker | null>(null);
   const agentRef = useRef<any>(null);
   const vectorStoreRef = useRef<LocalVectorStore | null>(null);
+  const retryCountRef = useRef(0);
+  const maxRetries = 3;
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'thinking'>('idle');
   const [thoughts, setThoughts] = useState<string[]>([]);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
 
-  useEffect(() => {
-    const initWorker = async () => {
-      try {
-        setStatus('loading');
-        
-        // Initialize vector store
-        const vectorStore = new LocalVectorStore();
-        await vectorStore.init();
-        vectorStoreRef.current = vectorStore;
-
-        // Initialize worker
-        workerRef.current = new Worker(
-          new URL('../workers/agent.worker.ts', import.meta.url),
-          { type: 'module' }
-        );
-
-        // Message handler for streaming
-        workerRef.current.onmessage = (e) => {
-          const { type, data, progress } = e.data;
-          
-          switch (type) {
-            case 'token':
-              setThoughts(prev => [...prev, data]);
-              break;
-            case 'download_progress':
-              setDownloadProgress(progress || 0);
-              break;
-            case 'tool_detected':
-              console.log('Tool detected:', data);
-              break;
-          }
-        };
-
-        workerRef.current.onerror = (error) => {
-          console.error('Worker error:', error);
-          setError(error.message);
-        };
-
-        // Wrap worker with Comlink
-        agentRef.current = Comlink.wrap(workerRef.current);
-
-        // Initialize agent
-        await agentRef.current.initialize();
-        setStatus('ready');
-        setError(null);
-      } catch (err: any) {
-        console.error('Init error:', err);
-        setError(err.message);
-        setStatus('idle');
+  const initializeAgent = useCallback(async () => {
+    try {
+      setStatus('loading');
+      console.log(`[OpenClaw] Initialization attempt ${retryCountRef.current + 1}/${maxRetries + 1}`);
+      
+      // Cleanup previous worker if exists
+      if (workerRef.current) {
+        try {
+          workerRef.current.terminate();
+        } catch (e) {
+          console.warn('[OpenClaw] Error terminating previous worker:', e);
+        }
       }
-    };
+      
+      // Initialize vector store
+      try {
+        const vectorStore = new LocalVectorStore();
+        await Promise.race([
+          vectorStore.init(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Vector store init timeout')), 5000)
+          )
+        ]);
+        vectorStoreRef.current = vectorStore;
+        console.log('[OpenClaw] Vector store initialized');
+      } catch (err: any) {
+        console.warn('[OpenClaw] Vector store init failed, continuing:', err.message);
+        // Continue without vector store
+      }
 
-    initWorker();
+      // Initialize worker with enhanced error handling
+      return new Promise((resolve, reject) => {
+        try {
+          const worker = new Worker(
+            new URL('../workers/agent.worker.ts', import.meta.url),
+            { type: 'module' }
+          );
 
-    return () => {
-      workerRef.current?.terminate();
-    };
+          // Setup timeout for worker readiness
+          const initTimeout = setTimeout(() => {
+            worker.terminate();
+            reject(new Error('Worker initialization timeout'));
+          }, 10000);
+
+          // Message handler for streaming
+          const messageHandler = (e: MessageEvent) => {
+            const { type, data, progress } = e.data;
+            
+            switch (type) {
+              case 'ready':
+                clearTimeout(initTimeout);
+                console.log('[OpenClaw] Worker ready');
+                break;
+              case 'token':
+                setThoughts(prev => [...prev, data]);
+                break;
+              case 'download_progress':
+                setDownloadProgress(progress || 0);
+                break;
+              case 'tool_detected':
+                console.log('[OpenClaw] Tool detected:', data);
+                break;
+              case 'error':
+                console.error('[OpenClaw] Worker error event:', data);
+                break;
+            }
+          };
+
+          worker.onmessage = messageHandler;
+          worker.onerror = (event) => {
+            clearTimeout(initTimeout);
+            console.error('[OpenClaw] Worker error:', event.message, event.filename, event.lineno);
+            worker.terminate();
+            reject(new Error(`Worker error: ${event.message}`));
+          };
+
+          // Wrap worker with Comlink
+          const wrappedAgent = Comlink.wrap(worker);
+          
+          // Initialize agent with timeout
+          Promise.race([
+            wrappedAgent.initialize(),
+            new Promise((_, rej) => 
+              setTimeout(() => rej(new Error('Agent init timeout')), 8000)
+            )
+          ])
+            .then(() => {
+              clearTimeout(initTimeout);
+              workerRef.current = worker;
+              agentRef.current = wrappedAgent;
+              console.log('[OpenClaw] Agent initialized successfully');
+              setStatus('ready');
+              setError(null);
+              retryCountRef.current = 0;
+              resolve(true);
+            })
+            .catch(reject);
+        } catch (err) {
+          reject(err);
+        }
+      });
+    } catch (err: any) {
+      const errMsg = err?.message || String(err) || 'Unknown error';
+      console.error('[OpenClaw] Init failed:', errMsg);
+      
+      if (retryCountRef.current < maxRetries) {
+        retryCountRef.current += 1;
+        console.log(`[OpenClaw] Retrying in 2s... (${retryCountRef.current}/${maxRetries})`);
+        setError(`Connection failed, retrying... (${retryCountRef.current}/${maxRetries})`);
+        
+        return new Promise(resolve => {
+          setTimeout(() => {
+            initializeAgent().then(resolve).catch(() => resolve(false));
+          }, 2000);
+        });
+      } else {
+        setError(`Failed after ${maxRetries + 1} attempts: ${errMsg}`);
+        setStatus('idle');
+        return false;
+      }
+    }
   }, []);
 
+  useEffect(() => {
+    initializeAgent();
+
+    return () => {
+      if (workerRef.current) {
+        try {
+          workerRef.current.terminate();
+        } catch (e) {
+          console.warn('[OpenClaw] Error on cleanup:', e);
+        }
+      }
+    };
+  }, [initializeAgent]);
+
   const sendMessage = useCallback(async (message: string) => {
-    if (!agentRef.current) {
-      setError('Agent not ready');
+    if (!agentRef.current || status === 'loading') {
+      setError(status === 'loading' ? 'Agent still initializing' : 'Agent not ready');
       return;
     }
 
@@ -88,37 +168,53 @@ export const useOpenClaw = () => {
       // Get chat history summaries
       const history = messages.slice(-5).map(m => m.content);
 
-      // Stream response from agent
-      const generator = await agentRef.current.chat(message, history);
-      
-      let fullResponse = '';
-      for await (const chunk of generator) {
-        fullResponse += chunk;
-        setThoughts(prev => {
-          const last = prev[prev.length - 1] || '';
-          const updated = [...prev.slice(0, -1), last + chunk];
-          return updated;
-        });
+      try {
+        // Stream response from agent with timeout
+        const generator = await Promise.race([
+          agentRef.current.chat(message, history),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Chat timeout')), 30000)
+          )
+        ]);
+        
+        let fullResponse = '';
+        for await (const chunk of generator) {
+          fullResponse += chunk;
+          setThoughts(prev => {
+            const last = prev[prev.length - 1] || '';
+            const updated = [...prev.slice(0, -1), last + chunk];
+            return updated;
+          });
+        }
+
+        // Add assistant response
+        setMessages(prev => [...prev, { role: 'assistant', content: fullResponse }]);
+
+        // Save to vector store
+        if (vectorStoreRef.current) {
+          try {
+            await vectorStoreRef.current.addDocument(fullResponse, {
+              userQuery: message,
+              timestamp: Date.now()
+            });
+          } catch (vstoreErr) {
+            console.warn('[OpenClaw] Vector store save failed:', vstoreErr);
+          }
+        }
+
+        setStatus('ready');
+      } catch (chatErr: any) {
+        console.error('[OpenClaw] Chat error:', chatErr);
+        setMessages(prev => prev.slice(0, -1)); // Remove user message on error
+        setError(chatErr.message || 'Chat failed');
+        setStatus('ready');
       }
-
-      // Add assistant response
-      setMessages(prev => [...prev, { role: 'assistant', content: fullResponse }]);
-
-      // Save to vector store
-      if (vectorStoreRef.current) {
-        await vectorStoreRef.current.addDocument(fullResponse, {
-          userQuery: message,
-          timestamp: Date.now()
-        });
-      }
-
-      setStatus('ready');
     } catch (err: any) {
-      console.error('Chat error:', err);
-      setError(err.message);
+      console.error('[OpenClaw] Message error:', err);
+      setError(err.message || 'Operation failed');
       setStatus('ready');
     }
-  }, [messages]);
+  }, [messages, status]);
 
   const clearHistory = useCallback(async () => {
     setMessages([]);

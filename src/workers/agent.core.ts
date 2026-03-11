@@ -7,21 +7,62 @@ export class OpenClawAgent {
     repetition_penalty: 1.1,
   };
   private isInitialized = false;
+  private initStartTime = 0;
 
   async initialize(onProgress: (progress: number) => void) {
     try {
-      // Check WebGPU availability
-      if (!navigator.gpu) {
-        console.warn('WebGPU not available, running in CPU mode');
+      this.initStartTime = Date.now();
+      console.log('[Agent] Initialization starting');
+      
+      // Check APIs availability
+      onProgress(10);
+      const checks = {
+        webgpu: !!navigator.gpu,
+        fileSystemAccess: 'showOpenFilePicker' in window,
+        indexedDB: !!('indexedDB' in window),
+        webWorkers: typeof Worker !== 'undefined',
+        crypto: !!crypto?.getRandomValues
+      };
+      
+      console.log('[Agent] API availability:', checks);
+      
+      if (!checks.indexedDB) {
+        throw new Error('IndexedDB not available - required for local storage');
       }
       
-      onProgress(50);
+      onProgress(30);
+      
+      // Simulate model loading/warmup
+      console.log('[Agent] Warming up inference engine');
+      await this.simulateWarmup();
+      onProgress(60);
+      
+      // Verify vector store capability
+      if (!checks.crypto) {
+        throw new Error('Crypto API not available');
+      }
+      onProgress(80);
+      
+      // Final validation
+      const initTime = Date.now() - this.initStartTime;
+      console.log(`[Agent] Initialization successful (${initTime}ms)`);
+      
       this.isInitialized = true;
       onProgress(100);
     } catch (error) {
-      console.error('Agent init error:', error);
+      console.error('[Agent] Init error:', error);
+      this.isInitialized = false;
       throw error;
     }
+  }
+
+  private async simulateWarmup() {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        console.log('[Agent] Warmup complete');
+        resolve(true);
+      }, 500);
+    });
   }
 
   async *chat(message: string, context: string[] = []) {
@@ -58,6 +99,10 @@ What would you like me to do?`;
   }
 
   async executeTool(tool: ToolDefinition) {
+    if (!this.isInitialized) {
+      throw new Error('Agent not initialized');
+    }
+    
     switch (tool.tool) {
       case 'read_file':
         return this.readLocalFile(tool.params);
@@ -87,6 +132,7 @@ What would you like me to do?`;
         content: content.substring(0, 5000) // Limit to 5k chars
       };
     } catch (error: any) {
+      console.error('[Agent] File read error:', error);
       return { error: error.message };
     }
   }
@@ -105,6 +151,7 @@ What would you like me to do?`;
         result: JSON.stringify(result).substring(0, 1000)
       };
     } catch (e: any) {
+      console.error('[Agent] Code execution error:', e);
       return { error: e.message };
     }
   }
