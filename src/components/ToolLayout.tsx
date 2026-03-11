@@ -27,6 +27,9 @@ const navItems = [
   { path: "/tools/breach-checker", label: "Breach Check" },  // ← NEU
   { path: "/tools/secret-sharing", label: "Secret Share" },  // ← NEU
   { path: "/tools/secure-clipboard", label: "Clipboard" },   // ← NEU
+  { path: "/tools/phishing-detective", label: "Phishing Game" },
+  { path: "/tools/crypto-speedrun", label: "Speedrun" },
+  { path: "/tools/social-engineering-quiz", label: "SE Quiz" },
 ];
 
 export default function ToolLayout({ children, title, icon: Icon, description }: ToolLayoutProps) {
