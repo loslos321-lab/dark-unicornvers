@@ -15,6 +15,9 @@ import FileVault from "./components/tools/FileVault";
 import SecureNotes from "./components/tools/SecureNotes";
 import QrCrypto from "./components/tools/QrCrypto";
 import EntropyChecker from "./components/tools/EntropyChecker";
+import BreachChecker from "./components/tools/BreachChecker";
+import SecretSharing from "./components/tools/SecretSharing";
+import SecureClipboard from "./components/tools/SecureClipboard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,6 +53,9 @@ const App = () => (
             <Route path="/tools/qr-crypto" element={<QrCrypto />} />
             <Route path="/tools/entropy" element={<EntropyChecker />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/tools/breach-checker" element={<BreachChecker />} />
+            <Route path="/tools/secret-sharing" element={<SecretSharing />} />
+            <Route path="/tools/secure-clipboard" element={<SecureClipboard />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
