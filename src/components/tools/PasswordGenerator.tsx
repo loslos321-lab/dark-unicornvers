@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Copy, RefreshCw, Shield, Check } from "lucide-react";
+import { Copy, RefreshCw, Check, Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import ToolLayout from "@/components/ToolLayout";
 
 export default function PasswordGenerator() {
   const [length, setLength] = useState(16);
@@ -59,15 +60,14 @@ export default function PasswordGenerator() {
   }, [length, options]);
 
   return (
-    <div className="h-full flex flex-col bg-background p-4">
-      <div className="flex items-center gap-2 mb-6">
-        <Shield className="w-5 h-5 text-primary" />
-        <h2 className="text-sm font-bold font-mono">PASSWORD GENERATOR</h2>
-      </div>
-
-      <div className="space-y-6 flex-1 overflow-y-auto">
+    <ToolLayout 
+      title="Password Generator" 
+      icon={Key}
+      description="Generate cryptographically secure passwords"
+    >
+      <div className="space-y-6 max-w-2xl mx-auto">
         <div className="relative">
-          <div className="bg-muted border border-border rounded-lg p-4 font-mono text-sm break-all min-h-[60px] flex items-center">
+          <div className="bg-muted border border-border rounded-lg p-4 font-mono text-lg break-all min-h-[80px] flex items-center justify-center text-center">
             {password}
           </div>
           <Button
@@ -94,34 +94,41 @@ export default function PasswordGenerator() {
           />
         </div>
 
-        <div className="space-y-3">
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
+        <div className="grid grid-cols-2 gap-4">
+          <label className="flex items-center gap-2 text-sm cursor-pointer p-3 border border-border rounded hover:bg-muted/50 transition-colors">
             <Checkbox checked={options.uppercase} onCheckedChange={(c) => setOptions({...options, uppercase: c as boolean})} />
             <span className="font-mono text-xs">UPPERCASE (A-Z)</span>
           </label>
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <label className="flex items-center gap-2 text-sm cursor-pointer p-3 border border-border rounded hover:bg-muted/50 transition-colors">
             <Checkbox checked={options.lowercase} onCheckedChange={(c) => setOptions({...options, lowercase: c as boolean})} />
             <span className="font-mono text-xs">LOWERCASE (a-z)</span>
           </label>
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <label className="flex items-center gap-2 text-sm cursor-pointer p-3 border border-border rounded hover:bg-muted/50 transition-colors">
             <Checkbox checked={options.numbers} onCheckedChange={(c) => setOptions({...options, numbers: c as boolean})} />
             <span className="font-mono text-xs">NUMBERS (0-9)</span>
           </label>
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <label className="flex items-center gap-2 text-sm cursor-pointer p-3 border border-border rounded hover:bg-muted/50 transition-colors">
             <Checkbox checked={options.symbols} onCheckedChange={(c) => setOptions({...options, symbols: c as boolean})} />
             <span className="font-mono text-xs">SYMBOLS (!@#$...)</span>
           </label>
         </div>
 
-        <Button onClick={generatePassword} className="w-full gap-2 font-mono">
+        <Button onClick={generatePassword} className="w-full gap-2 font-mono h-12">
           <RefreshCw className="w-4 h-4" />
-          GENERATE NEW
+          GENERATE NEW PASSWORD
         </Button>
 
-        <div className="text-[10px] text-muted-foreground font-mono text-center">
-          Entropy: ~{Math.round(length * Math.log2((options.uppercase ? 26 : 0) + (options.lowercase ? 26 : 0) + (options.numbers ? 10 : 0) + (options.symbols ? 14 : 0)))} bits
+        <div className="text-[10px] text-muted-foreground font-mono text-center p-4 bg-muted rounded-lg border border-border">
+          <div className="flex justify-between mb-1">
+            <span>Character Set:</span>
+            <span>{(options.uppercase ? 26 : 0) + (options.lowercase ? 26 : 0) + (options.numbers ? 10 : 0) + (options.symbols ? 14 : 0)} symbols</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Entropy:</span>
+            <span className="text-primary">~{Math.round(length * Math.log2((options.uppercase ? 26 : 0) + (options.lowercase ? 26 : 0) + (options.numbers ? 10 : 0) + (options.symbols ? 14 : 0)))} bits</span>
+          </div>
         </div>
       </div>
-    </div>
+    </ToolLayout>
   );
 }
