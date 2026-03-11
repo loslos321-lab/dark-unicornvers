@@ -18,6 +18,7 @@ import EntropyChecker from "./components/tools/EntropyChecker";
 import BreachChecker from "./components/tools/BreachChecker";
 import SecretSharing from "./components/tools/SecretSharing";
 import SecureClipboard from "./components/tools/SecureClipboard";
+import PhishingDetective from "./components/tools/PhishingDetective";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/tools/breach-checker" element={<BreachChecker />} />
             <Route path="/tools/secret-sharing" element={<SecretSharing />} />
             <Route path="/tools/secure-clipboard" element={<SecureClipboard />} />
+            <Route path="/tools/phishing-detective" element={<PhishingDetective />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
