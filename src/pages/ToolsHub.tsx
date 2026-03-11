@@ -1,4 +1,4 @@
-import { Shield, Lock, Wrench, ArrowRight, Sparkles, Key, FileLock, FileText, QrCode, Gauge, Search, Split, Clipboard, Gamepad2, Trophy, BrainCircuit, Target } from "lucide-react";
+import { Shield, Lock, Wrench, ArrowRight, Sparkles, Key, FileLock, FileText, QrCode, Gauge, Search, Split, Clipboard, Trophy, BrainCircuit, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,11 +54,11 @@ const tools = [
     path: "/tools/entropy",
     ready: true,
   },
-{
+  {
     key: "breach-checker",
     title: "Breach Checker",
     description: "Check if your password has been leaked in data breaches using HaveIBeenPwned.",
-    icon: Shield,
+    icon: Search,
     path: "/tools/breach-checker",
     ready: true,
   },
@@ -78,33 +78,31 @@ const tools = [
     path: "/tools/secure-clipboard",
     ready: true,
   },
-// ... bestehende tools ...
-
-{
-  key: "phishing-detective",
-  title: "Phishing Detective",
-  description: "Interactive game: Spot the fake emails, websites and social engineering attempts. Test your security awareness skills in realistic scenarios.",
-  icon: Target,
-  path: "/tools/phishing-detective",
-  ready: false,
-},
-{
-  key: "crypto-speedrun",
-  title: "Crypto Speedrun",
-  description: "Race against time to crack passwords, decrypt messages and solve cryptographic puzzles. Learn why strong passwords matter.",
-  icon: Zap,  // Alternativ: Trophy oder Timer
-  path: "/tools/crypto-speedrun",
-  ready: false,
-},
-{
-  key: "social-engineering-quiz",
-  title: "Social Engineering Defense",
-  description: "Interactive dialog simulator: Detect manipulation attempts, CEO fraud and support scams. Save the company before it's too late.",
-  icon: BrainCircuit,  // Alternativ: MessageCircle oder ShieldAlert
-  path: "/tools/social-engineering-quiz",
-  ready: false,
-}
-  ],
+  {
+    key: "phishing-detective",
+    title: "Phishing Detective",
+    description: "Interactive game: Spot the fake emails, websites and social engineering attempts.",
+    icon: Target,
+    path: "/tools/phishing-detective",
+    ready: false,
+  },
+  {
+    key: "crypto-speedrun",
+    title: "Crypto Speedrun",
+    description: "Race against time to crack passwords and solve cryptographic puzzles.",
+    icon: Trophy,
+    path: "/tools/crypto-speedrun",
+    ready: false,
+  },
+  {
+    key: "social-engineering-quiz",
+    title: "Social Engineering Defense",
+    description: "Interactive dialog simulator: Detect manipulation attempts and CEO fraud.",
+    icon: BrainCircuit,
+    path: "/tools/social-engineering-quiz",
+    ready: false,
+  },
+];
 
 export default function ToolsHub() {
   return (
@@ -180,7 +178,7 @@ function PurchaseButton() {
 
   return (
     <Button disabled={true} className="font-mono shrink-0 opacity-50">
-  Coming Soon
+      Coming Soon
     </Button>
   );
 }
