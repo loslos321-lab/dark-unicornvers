@@ -65,9 +65,9 @@ const SecretView = () => {
     setError("");
     try {
       // Atomically mark as viewed and get encrypted content via RPC
-      const { data: encryptedContent, error: rpcError } = await supabase.rpc("view_secret_link", { link_id: id });
+      const { data: encryptedContent, error: rpcError } = await (supabase.rpc as any)("view_secret_link", { link_id: id });
       if (rpcError || !encryptedContent) { incrementAttempts(); setError("Not found or already viewed"); return; }
-      const decrypted = await decryptMessage(encryptedContent, decryptPassword);
+      const decrypted = await decryptMessage(encryptedContent as string, decryptPassword);
       setDecryptedText(decrypted);
       setState("revealed");
     } catch { incrementAttempts(); setError("Wrong password"); }
