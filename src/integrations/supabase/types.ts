@@ -83,11 +83,19 @@ export type Database = {
         Args: { attempt: string; room_id: string }
         Returns: boolean
       }
+      get_secret_link_meta: {
+        Args: { link_id: string }
+        Returns: {
+          is_password_protected: boolean
+          is_viewed: boolean
+        }[]
+      }
       hash_password_bcrypt: { Args: { password: string }; Returns: string }
       verify_secret_link_password: {
         Args: { attempt: string; link_id: string }
         Returns: boolean
       }
+      view_secret_link: { Args: { link_id: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
