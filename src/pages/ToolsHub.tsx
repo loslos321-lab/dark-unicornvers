@@ -55,6 +55,30 @@ const tools = [
     path: "/tools/entropy",
     ready: true,
   },
+{
+    key: "breach-checker",
+    title: "Breach Checker",
+    description: "Check if your password has been leaked in data breaches using HaveIBeenPwned.",
+    icon: Shield,
+    path: "/tools/breach-checker",
+    ready: true,
+  },
+  {
+    key: "secret-sharing",
+    title: "Secret Sharing",
+    description: "Split secrets into multiple shares. Reconstruct with threshold cryptography.",
+    icon: Split,
+    path: "/tools/secret-sharing",
+    ready: true,
+  },
+  {
+    key: "secure-clipboard",
+    title: "Secure Clipboard",
+    description: "Self-destructing encrypted messages with time-limited secure links.",
+    icon: Clipboard,
+    path: "/tools/secure-clipboard",
+    ready: true,
+  },
 ];
 
 export default function ToolsHub() {
