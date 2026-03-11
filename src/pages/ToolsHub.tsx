@@ -1,4 +1,5 @@
 import { Shield, Lock, Wrench, ArrowRight, Sparkles } from "lucide-react";
+import { Shield, Lock, Wrench, ArrowRight, Sparkles, Key, FileLock, FileText, QrCode, Gauge } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,18 +10,50 @@ const tools = [
   {
     key: "vector-crypto",
     title: "Vector Crypto",
-    description: "End-to-end encrypted messaging, one-time secret links, and hosted rooms — powered by a living vector field.",
+    description: "End-to-end encrypted messaging, one-time secret links, and hosted rooms.",
     icon: Lock,
     path: "/vector-crypto",
     ready: true,
   },
   {
-    key: "coming-soon-1",
-    title: "More Tools",
-    description: "New security and privacy tools are on the way. Stay tuned.",
-    icon: Wrench,
-    path: "#",
-    ready: false,
+    key: "password-generator",
+    title: "Password Generator",
+    description: "Generate cryptographically secure passwords with custom length and character sets.",
+    icon: Key,
+    path: "/tools/password-generator",
+    ready: true,
+  },
+  {
+    key: "file-vault",
+    title: "File Vault",
+    description: "Encrypt and decrypt files directly in your browser using AES-256-GCM.",
+    icon: FileLock,
+    path: "/tools/file-vault",
+    ready: true,
+  },
+  {
+    key: "secure-notes",
+    title: "Secure Notes",
+    description: "Encrypted notes stored locally. Protected with your master password.",
+    icon: FileText,
+    path: "/tools/secure-notes",
+    ready: true,
+  },
+  {
+    key: "qr-crypto",
+    title: "QR Code Crypto",
+    description: "Convert encrypted messages to QR codes for offline transfer.",
+    icon: QrCode,
+    path: "/tools/qr-crypto",
+    ready: true,
+  },
+  {
+    key: "entropy",
+    title: "Entropy Checker",
+    description: "Analyze password strength and calculate bits of entropy.",
+    icon: Gauge,
+    path: "/tools/entropy",
+    ready: true,
   },
 ];
 
