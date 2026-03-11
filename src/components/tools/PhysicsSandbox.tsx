@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Atom, Play, Pause, RefreshCw, MousePointer2, Zap } from "lucide-react";
+import { Atom, Play, Pause, RefreshCw, MousePointer2, Zap, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ToolLayout from "@/components/ToolLayout";
+import { useNavigate } from "react-router-dom";
 
 interface Ball {
   id: number;
@@ -24,6 +24,7 @@ interface Particle {
 }
 
 export default function PhysicsSandbox() {
+  const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const [isRunning, setIsRunning] = useState(true);
@@ -33,6 +34,9 @@ export default function PhysicsSandbox() {
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({ x: 0, y: 0, isDown: false });
   const lastTimeRef = useRef(0);
+  
+  // WICHTIG: queued spawns außerhalb des Render-Loops
+  const pendingSpawnsRef = useRef(0);
   
   const GRAVITY = 0.5;
   const FRICTION = 0.99;
@@ -101,7 +105,6 @@ export default function PhysicsSandbox() {
     b2.vx += (impulse * nx) / b2.mass;
     b2.vy += (impulse * ny) / b2.mass;
     
-    // Separate balls to prevent sticking
     const overlap = (b1.radius + b2.radius - distance) / 2;
     b1.x -= overlap * nx;
     b1.y -= overlap * ny;
@@ -118,18 +121,12 @@ export default function PhysicsSandbox() {
     
     // Update balls
     ballsRef.current.forEach(ball => {
-      // Apply gravity
       ball.vy += GRAVITY;
-      
-      // Apply friction
       ball.vx *= FRICTION;
       ball.vy *= FRICTION;
-      
-      // Update position
       ball.x += ball.vx;
       ball.y += ball.vy;
       
-      // Wall collisions
       if (ball.x - ball.radius < 0) {
         ball.x = ball.radius;
         ball.vx *= -BOUNCE;
@@ -142,8 +139,6 @@ export default function PhysicsSandbox() {
         ball.y = ball.radius;
         ball.vy *= -BOUNCE;
       }
-      
-      // Floor collision
       if (ball.y + ball.radius > height) {
         ball.y = height - ball.radius;
         ball.vy *= -BOUNCE;
@@ -159,45 +154,26 @@ export default function PhysicsSandbox() {
       }
     }
     
-    // Check escapes and spawn new balls (THE VIRAL MECHANIC)
+    // Check escapes
     const escaped: number[] = [];
     ballsRef.current.forEach((ball, index) => {
-      // Escape through bottom (falling out)
       if (ball.y - ball.radius > height + 50) {
         escaped.push(index);
       }
-      // Escape through sides with high velocity
       else if ((ball.x < -50 || ball.x > width + 50) && Math.abs(ball.vx) > 15) {
         escaped.push(index);
       }
     });
     
-    // Remove escaped and spawn 2 new ones (with limit)
     if (escaped.length > 0 && SPAWN_ON_ESCAPE) {
       escaped.reverse().forEach(index => {
         const ball = ballsRef.current[index];
         createExplosion(ball.x, ball.y, ball.color);
-        
-        // Remove escaped ball
         ballsRef.current.splice(index, 1);
         
-        // Spawn 2 new balls at random positions (if under limit)
+        // Sammle spawns (nicht direkt setState!)
         if (ballsRef.current.length < 50) {
-          setTimeout(() => {
-            ballsRef.current.push(createBall(
-              Math.random() * width,
-              -20,
-              (Math.random() - 0.5) * 10,
-              5
-            ));
-            ballsRef.current.push(createBall(
-              Math.random() * width,
-              -20,
-              (Math.random() - 0.5) * 10,
-              5
-            ));
-            setSpawnCount(prev => prev + 2);
-          }, 100);
+          pendingSpawnsRef.current += 2;
         }
       });
     }
@@ -210,7 +186,7 @@ export default function PhysicsSandbox() {
       return p.life > 0;
     });
     
-    // Mouse interaction (attract/repel)
+    // Mouse interaction
     if (mouseRef.current.isDown) {
       ballsRef.current.forEach(ball => {
         const dx = mouseRef.current.x - ball.x;
@@ -227,16 +203,35 @@ export default function PhysicsSandbox() {
     setBallCount(ballsRef.current.length);
   }, []);
 
+  // SEPARATER Effect für Spawning (nicht im Animation Loop!)
+  useEffect(() => {
+    if (pendingSpawnsRef.current > 0) {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const width = canvas.width;
+      
+      // Spawn die gesammelten Bälle
+      for (let i = 0; i < pendingSpawnsRef.current; i++) {
+        ballsRef.current.push(createBall(
+          Math.random() * width,
+          -20,
+          (Math.random() - 0.5) * 10,
+          5
+        ));
+      }
+      setSpawnCount(prev => prev + pendingSpawnsRef.current);
+      pendingSpawnsRef.current = 0;
+    }
+  }, [ballCount]); // Trigger wenn ballCount sich ändert
+
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
     
-    // Clear with trail effect
     ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Draw particles
     particlesRef.current.forEach(p => {
       ctx.globalAlpha = p.life;
       ctx.fillStyle = p.color;
@@ -246,21 +241,14 @@ export default function PhysicsSandbox() {
     });
     ctx.globalAlpha = 1;
     
-    // Draw balls
     ballsRef.current.forEach(ball => {
-      // Glow effect
       ctx.shadowBlur = 20;
       ctx.shadowColor = ball.color;
-      
       ctx.fillStyle = ball.color;
       ctx.beginPath();
       ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
       ctx.fill();
-      
-      // Reset shadow
       ctx.shadowBlur = 0;
-      
-      // Inner highlight
       ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
       ctx.beginPath();
       ctx.arc(ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, ball.radius * 0.4, 0, Math.PI * 2);
@@ -294,13 +282,13 @@ export default function PhysicsSandbox() {
     handleResize();
     window.addEventListener('resize', handleResize);
     
-    // Initial balls
     for (let i = 0; i < 5; i++) {
       ballsRef.current.push(createBall(
         canvas.width / 2 + (Math.random() - 0.5) * 100,
         canvas.height / 3 + (Math.random() - 0.5) * 100
       ));
     }
+    setBallCount(5);
     
     animationRef.current = requestAnimationFrame(loop);
     
@@ -321,105 +309,103 @@ export default function PhysicsSandbox() {
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-    
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
-    // Spawn new ball on click
     ballsRef.current.push(createBall(x, y, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20));
     createExplosion(x, y, getRandomColor());
+    setBallCount(ballsRef.current.length);
   };
 
   const reset = () => {
     ballsRef.current = [];
     particlesRef.current = [];
     setSpawnCount(0);
-    
+    pendingSpawnsRef.current = 0;
     const canvas = canvasRef.current;
     if (canvas) {
       for (let i = 0; i < 5; i++) {
-        ballsRef.current.push(createBall(
-          canvas.width / 2,
-          canvas.height / 3
-        ));
+        ballsRef.current.push(createBall(canvas.width / 2, canvas.height / 3));
       }
+      setBallCount(5);
     }
   };
 
   return (
-    <ToolLayout 
-      title="Physics Sandbox" 
-      icon={Atom}
-      description="Balls spawn 2 more when they escape. Click to add balls."
-    >
-      <div className="h-full flex flex-col">
-        {/* Controls */}
-        <div className="flex items-center justify-between p-4 bg-muted border-b border-border">
-          <div className="flex items-center gap-4">
-            <Button
-              size="sm"
-              variant={isRunning ? "default" : "outline"}
-              onClick={() => setIsRunning(!isRunning)}
-              className="gap-2 font-mono"
-            >
-              {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              {isRunning ? "PAUSE" : "PLAY"}
+    <div className="h-screen w-full bg-black flex flex-col overflow-hidden">
+      {/* Header - OHNE ToolLayout */}
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-zinc-900/95 backdrop-blur">
+        <div className="flex h-14 items-center justify-between px-4">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate("/")}>
+              <ArrowLeft className="h-5 w-5" />
             </Button>
-            
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={reset}
-              className="gap-2 font-mono"
-            >
-              <RefreshCw className="w-4 h-4" />
-              RESET
-            </Button>
-          </div>
-          
-          <div className="flex items-center gap-4 text-xs font-mono">
             <div className="flex items-center gap-2">
-              <Atom className="w-4 h-4 text-primary" />
-              <span>BALLS: {ballCount}</span>
-            </div>
-            <div className="flex items-center gap-2 text-green-500">
-              <Zap className="w-4 h-4" />
-              <span>SPAWNED: {spawnCount}</span>
+              <Atom className="h-5 w-5 text-primary" />
+              <div>
+                <h1 className="text-sm font-bold font-mono">Physics Sandbox</h1>
+                <p className="text-[10px] text-muted-foreground font-mono hidden sm:block">
+                  Balls spawn 2 more when they escape. Click to add balls.
+                </p>
+              </div>
             </div>
           </div>
         </div>
+      </header>
 
-        {/* Canvas */}
-        <div className="flex-1 relative bg-black overflow-hidden">
-          <canvas
-            ref={canvasRef}
-            onMouseMove={handleMouseMove}
-            onMouseDown={() => mouseRef.current.isDown = true}
-            onMouseUp={() => mouseRef.current.isDown = false}
-            onMouseLeave={() => mouseRef.current.isDown = false}
-            onClick={handleClick}
-            className="w-full h-full cursor-crosshair"
-            style={{ imageRendering: 'crisp-edges' }}
-          />
-          
-          {/* Instructions Overlay */}
-          <div className="absolute top-4 left-4 pointer-events-none">
-            <div className="bg-card/80 backdrop-blur-sm p-3 rounded border border-border text-xs font-mono space-y-1">
-              <div className="flex items-center gap-2">
-                <MousePointer2 className="w-3 h-3" />
-                <span>Click to spawn balls</span>
-              </div>
-              <div className="flex items-center gap-2 text-green-500">
-                <Zap className="w-3 h-3" />
-                <span>Escaped balls spawn 2 more!</span>
-              </div>
-              <div className="text-muted-foreground">
-                Hold mouse to attract balls
-              </div>
-            </div>
+      {/* Controls */}
+      <div className="flex items-center justify-between p-4 bg-zinc-900 border-b border-zinc-800 z-10">
+        <div className="flex items-center gap-4">
+          <Button
+            size="sm"
+            variant={isRunning ? "default" : "outline"}
+            onClick={() => setIsRunning(!isRunning)}
+            className="gap-2 font-mono"
+          >
+            {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            {isRunning ? "PAUSE" : "PLAY"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={reset} className="gap-2 font-mono">
+            <RefreshCw className="w-4 h-4" />
+            RESET
+          </Button>
+        </div>
+        <div className="flex items-center gap-4 text-xs font-mono text-white">
+          <div className="flex items-center gap-2">
+            <Atom className="w-4 h-4 text-primary" />
+            <span>BALLS: {ballCount}</span>
+          </div>
+          <div className="flex items-center gap-2 text-green-500">
+            <Zap className="w-4 h-4" />
+            <span>SPAWNED: {spawnCount}</span>
           </div>
         </div>
       </div>
-    </ToolLayout>
+
+      {/* Canvas */}
+      <div className="flex-1 relative bg-black overflow-hidden">
+        <canvas
+          ref={canvasRef}
+          onMouseMove={handleMouseMove}
+          onMouseDown={() => mouseRef.current.isDown = true}
+          onMouseUp={() => mouseRef.current.isDown = false}
+          onMouseLeave={() => mouseRef.current.isDown = false}
+          onClick={handleClick}
+          className="w-full h-full cursor-crosshair block"
+        />
+        <div className="absolute top-4 left-4 pointer-events-none">
+          <div className="bg-black/80 backdrop-blur-sm p-3 rounded border border-zinc-800 text-xs font-mono space-y-1 text-white">
+            <div className="flex items-center gap-2">
+              <MousePointer2 className="w-3 h-3" />
+              <span>Click to spawn balls</span>
+            </div>
+            <div className="flex items-center gap-2 text-green-500">
+              <Zap className="w-3 h-3" />
+              <span>Escaped balls spawn 2 more!</span>
+            </div>
+            <div className="text-zinc-400">Hold mouse to attract balls</div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
