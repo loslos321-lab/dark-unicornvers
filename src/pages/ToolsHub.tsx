@@ -51,6 +51,20 @@ export default function ToolsHub() {
             <ToolCard key={tool.key} tool={tool} />
           ))}
         </div>
+
+        {/* Premium CTA */}
+        <div className="mt-8 max-w-5xl rounded-lg border border-primary/30 bg-card p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <h3 className="font-mono font-semibold text-foreground text-sm">Unlock Premium Tools</h3>
+            </div>
+            <p className="text-muted-foreground text-xs font-mono">
+              One-time payment of $0.99 — get access to all current and future premium tools.
+            </p>
+          </div>
+          <PurchaseButton />
+        </div>
       </main>
 
       {/* Footer */}
