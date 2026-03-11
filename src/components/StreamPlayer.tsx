@@ -12,10 +12,10 @@ export default function StreamPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // TESTE DIESEN STREAM (Radio Paradise - funktioniert fast immer):
-  const STREAM_URL = "https://stream.radioparadise.com/aac-128";
+  //const STREAM_URL = "https://stream.radioparadise.com/aac-128";
   
   // Oder deinen Original-Stream (kann CORS-Probleme haben):
-  // const STREAM_URL = "http://81.18.165.236:80";
+  const STREAM_URL = "http://81.18.165.236:80";
 
   useEffect(() => {
     audioRef.current = new Audio(STREAM_URL);
