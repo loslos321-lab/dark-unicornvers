@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
-import { FileLock, Upload, Download, Lock, Unlock, Shield } from "lucide-react";
+import { FileLock, Upload, Download, Lock, Unlock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { encryptMessage, decryptMessage } from "@/lib/crypto";
 import { toast } from "sonner";
+import ToolLayout from "@/components/ToolLayout";
 
 export default function FileVault() {
   const [file, setFile] = useState<File | null>(null);
@@ -77,16 +78,15 @@ export default function FileVault() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-background p-4">
-      <div className="flex items-center gap-2 mb-6">
-        <FileLock className="w-5 h-5 text-primary" />
-        <h2 className="text-sm font-bold font-mono">FILE VAULT</h2>
-      </div>
-
-      <div className="space-y-4 flex-1 overflow-y-auto">
+    <ToolLayout 
+      title="File Vault" 
+      icon={FileLock}
+      description="Encrypt and decrypt files with AES-256-GCM"
+    >
+      <div className="space-y-6 max-w-2xl mx-auto">
         <div 
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+          className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors hover:bg-muted/30"
         >
           <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
           <p className="text-sm text-muted-foreground font-mono">
@@ -101,7 +101,7 @@ export default function FileVault() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-mono">PASSWORD</label>
+          <label className="text-xs font-mono text-muted-foreground">PASSWORD</label>
           <input
             type="password"
             value={password}
@@ -111,11 +111,11 @@ export default function FileVault() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-4">
           <Button 
             onClick={handleEncrypt} 
             disabled={processing || !file}
-            className="gap-2 font-mono"
+            className="gap-2 font-mono h-12"
           >
             <Lock className="w-4 h-4" />
             ENCRYPT
@@ -124,24 +124,23 @@ export default function FileVault() {
             onClick={handleDecrypt} 
             disabled={processing || !file}
             variant="secondary"
-            className="gap-2 font-mono"
+            className="gap-2 font-mono h-12"
           >
             <Unlock className="w-4 h-4" />
             DECRYPT
           </Button>
         </div>
 
-        <div className="p-4 bg-muted rounded border border-border">
-          <div className="flex items-start gap-2">
-            <Shield className="w-4 h-4 text-primary mt-0.5" />
-            <p className="text-[10px] text-muted-foreground font-mono leading-relaxed">
-              Files are encrypted/decrypted client-side using AES-256-GCM. 
-              The encrypted file will have .encrypted extension. 
-              Large files (&gt;10MB) may take a moment to process.
+        <div className="p-4 bg-muted rounded-lg border border-border">
+          <div className="flex items-start gap-3">
+            <FileLock className="w-4 h-4 text-primary mt-0.5" />
+            <p className="text-xs text-muted-foreground font-mono leading-relaxed">
+              Files are encrypted client-side using AES-256-GCM before leaving your browser. 
+              The encrypted file will have .encrypted extension. Large files (&gt;10MB) may take a moment.
             </p>
           </div>
         </div>
       </div>
-    </div>
+    </ToolLayout>
   );
 }
