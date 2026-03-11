@@ -97,8 +97,8 @@ function PurchaseButton() {
   };
 
   return (
-    <Button onClick={handlePurchase} disabled=true className="font-mono shrink-0">
-      {loading ? "Loading…" : "Buy for $0.99"}
+    <Button disabled={true} className="font-mono shrink-0 opacity-50">
+  Coming Soon
     </Button>
   );
 }
