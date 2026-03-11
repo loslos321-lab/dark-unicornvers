@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { QrCode, Lock, Unlock, Download, Copy } from "lucide-react";
+import { QrCode, Lock, Unlock, Copy, Scan } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { encryptMessage, decryptMessage } from "@/lib/crypto";
 import { toast } from "sonner";
+import ToolLayout from "@/components/ToolLayout";
 
 export default function QrCrypto() {
   const [mode, setMode] = useState<"encrypt" | "decrypt">("encrypt");
@@ -19,7 +20,7 @@ export default function QrCrypto() {
     try {
       const encrypted = await encryptMessage(message, password);
       setQrData(encrypted);
-      toast.success("QR code data generated");
+      toast.success("QR data generated");
     } catch {
       toast.error("Failed to generate");
     }
@@ -45,48 +46,47 @@ export default function QrCrypto() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-background p-4">
-      <div className="flex items-center gap-2 mb-6">
-        <QrCode className="w-5 h-5 text-primary" />
-        <h2 className="text-sm font-bold font-mono">QR CODE CRYPTO</h2>
-      </div>
+    <ToolLayout 
+      title="QR Code Crypto" 
+      icon={QrCode}
+      description="Encrypt messages for QR code transfer"
+    >
+      <div className="space-y-6 max-w-2xl mx-auto">
+        <div className="flex gap-2">
+          <Button 
+            size="sm" 
+            variant={mode === "encrypt" ? "default" : "outline"}
+            onClick={() => setMode("encrypt")}
+            className="flex-1 font-mono gap-2"
+          >
+            <Lock className="w-4 h-4" />
+            ENCRYPT TO QR
+          </Button>
+          <Button 
+            size="sm" 
+            variant={mode === "decrypt" ? "default" : "outline"}
+            onClick={() => setMode("decrypt")}
+            className="flex-1 font-mono gap-2"
+          >
+            <Scan className="w-4 h-4" />
+            DECRYPT FROM QR
+          </Button>
+        </div>
 
-      <div className="flex gap-2 mb-4">
-        <Button 
-          size="sm" 
-          variant={mode === "encrypt" ? "default" : "outline"}
-          onClick={() => setMode("encrypt")}
-          className="flex-1 font-mono"
-        >
-          <Lock className="w-4 h-4 mr-2" />
-          ENCRYPT
-        </Button>
-        <Button 
-          size="sm" 
-          variant={mode === "decrypt" ? "default" : "outline"}
-          onClick={() => setMode("decrypt")}
-          className="flex-1 font-mono"
-        >
-          <Unlock className="w-4 h-4 mr-2" />
-          DECRYPT
-        </Button>
-      </div>
-
-      <div className="space-y-3 flex-1 overflow-y-auto">
         <div>
-          <label className="text-xs font-mono block mb-1">
+          <label className="text-xs font-mono text-muted-foreground block mb-2">
             {mode === "encrypt" ? "MESSAGE TO ENCRYPT" : "QR DATA (PASTE HERE)"}
           </label>
           <textarea
             value={mode === "encrypt" ? message : qrData}
             onChange={(e) => mode === "encrypt" ? setMessage(e.target.value) : setQrData(e.target.value)}
             placeholder={mode === "encrypt" ? "Enter secret message..." : "Paste encrypted QR data..."}
-            className="w-full h-24 bg-input border border-border rounded px-3 py-2 text-sm font-mono resize-none"
+            className="w-full h-32 bg-input border border-border rounded px-3 py-2 text-sm font-mono resize-none"
           />
         </div>
 
         <div>
-          <label className="text-xs font-mono block mb-1">PASSWORD</label>
+          <label className="text-xs font-mono text-muted-foreground block mb-2">PASSWORD</label>
           <input
             type="password"
             value={password}
@@ -97,44 +97,42 @@ export default function QrCrypto() {
         </div>
 
         {mode === "encrypt" ? (
-          <Button onClick={generateQR} className="w-full gap-2 font-mono">
+          <Button onClick={generateQR} className="w-full gap-2 font-mono h-12">
             <QrCode className="w-4 h-4" />
-            GENERATE QR DATA
+            GENERATE ENCRYPTED QR DATA
           </Button>
         ) : (
-          <Button onClick={decryptQR} className="w-full gap-2 font-mono">
+          <Button onClick={decryptQR} className="w-full gap-2 font-mono h-12">
             <Unlock className="w-4 h-4" />
             DECRYPT MESSAGE
           </Button>
         )}
 
         {qrData && mode === "encrypt" && (
-          <div className="p-3 bg-muted border border-border rounded space-y-2">
+          <div className="p-4 bg-muted border border-border rounded-lg space-y-3">
             <p className="text-xs font-mono text-muted-foreground">ENCRYPTED DATA (COPY TO QR GENERATOR):</p>
-            <div className="font-mono text-xs break-all max-h-20 overflow-y-auto bg-background p-2 rounded border">
+            <div className="font-mono text-xs break-all max-h-32 overflow-y-auto bg-background p-3 rounded border">
               {qrData}
             </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={copyToClipboard} className="flex-1 gap-1">
-                <Copy className="w-3 h-3" />
-                COPY
-              </Button>
-            </div>
+            <Button size="sm" variant="outline" onClick={copyToClipboard} className="w-full gap-2 font-mono">
+              <Copy className="w-4 h-4" />
+              COPY TO CLIPBOARD
+            </Button>
           </div>
         )}
 
         {decryptedText && mode === "decrypt" && (
-          <div className="p-3 bg-muted border border-primary/30 rounded">
-            <p className="text-xs font-mono text-primary mb-1">DECRYPTED MESSAGE:</p>
+          <div className="p-4 bg-muted border border-primary/30 rounded-lg">
+            <p className="text-xs font-mono text-primary mb-2">DECRYPTED MESSAGE:</p>
             <p className="font-mono text-sm whitespace-pre-wrap break-all">{decryptedText}</p>
           </div>
         )}
 
-        <div className="text-[10px] text-muted-foreground font-mono mt-4 p-2 bg-muted rounded">
+        <div className="text-[10px] text-muted-foreground font-mono p-3 bg-muted rounded border border-border">
           Tip: Use any QR code generator (like qr-code-generator.com) with the encrypted data, 
-          then scan and paste back here to decrypt.
+          then scan and paste back here to decrypt. The data never touches our servers.
         </div>
       </div>
-    </div>
+    </ToolLayout>
   );
 }
