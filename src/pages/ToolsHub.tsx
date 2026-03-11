@@ -1,4 +1,4 @@
-import { Shield, Lock, Wrench, ArrowRight, Sparkles, Key, FileLock, FileText, QrCode, Gauge, Search, Split, Clipboard, Trophy, BrainCircuit, Target } from "lucide-react";
+import { Shield, Lock, Wrench, ArrowRight, Sparkles, Key, FileLock, FileText, QrCode, Gauge, Search, Split, Clipboard, Trophy, BrainCircuit, Target, Atom } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
