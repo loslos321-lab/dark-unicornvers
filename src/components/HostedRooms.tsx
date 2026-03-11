@@ -277,6 +277,7 @@ export default function HostedRooms() {
               value={roomName}
               onChange={(e) => setRoomName(e.target.value)}
               placeholder="my-secret-room"
+              maxLength={64}
               className="w-full bg-input border border-border rounded px-3 py-2 text-xs font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>

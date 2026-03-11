@@ -226,6 +226,7 @@ export default function CryptoPanel({ canvasRef }: { canvasRef: React.RefObject<
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 placeholder="Enter secret message..."
+                maxLength={50000}
                 className="w-full bg-input border border-border rounded px-3 py-2 text-xs font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none h-20"
               />
             </div>

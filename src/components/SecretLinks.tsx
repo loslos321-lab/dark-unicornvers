@@ -64,20 +64,16 @@ export default function SecretLinks() {
 
   const checkStatus = async (id: string) => {
     try {
-      const { data, error } = await supabase
-        .from("secret_links")
-        .select("viewed, viewed_at")
-        .eq("id", id)
-        .single();
-
-      if (error) throw error;
+      const { data, error } = await (supabase.rpc as any)("get_secret_link_meta", { link_id: id });
+      if (error || !data || data.length === 0) throw new Error("Not found");
+      const meta = data[0] as { is_viewed: boolean; is_password_protected: boolean };
 
       setMyLinks((prev) =>
-        prev.map((l) => (l.id === id ? { ...l, viewed: data.viewed } : l))
+        prev.map((l) => (l.id === id ? { ...l, viewed: meta.is_viewed } : l))
       );
 
-      if (data.viewed) {
-        toast.info(`Opened at ${new Date(data.viewed_at!).toLocaleString()}`);
+      if (meta.is_viewed) {
+        toast.info("Link has been opened");
       } else {
         toast.info("Not yet opened");
       }
@@ -105,6 +101,7 @@ export default function SecretLinks() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="This message will self-destruct..."
+            maxLength={50000}
             className="w-full bg-input border border-border rounded px-3 py-2 text-xs font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none h-20"
           />
         </div>
