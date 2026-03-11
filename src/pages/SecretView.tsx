@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Navigate, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { decryptMessage } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ const SecretView = () => {
   const [decryptPassword, setDecryptPassword] = useState("");
   const [decryptedText, setDecryptedText] = useState("");
   const [error, setError] = useState("");
-  const [requiresEntryPassword, setRequiresEntryPassword] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [lockoutEnd, setLockoutEnd] = useState(0);
 
@@ -31,11 +30,11 @@ const SecretView = () => {
 
   const fetchSecret = async () => {
     try {
-      const { data } = await supabase.from("secrets").select("encrypted_content, requires_password, destroyed").eq("id", id).single();
-      if (!data) { setState("error"); return; }
-      if (data.destroyed) { setState("gone"); return; }
-      setRequiresEntryPassword(data.requires_password);
-      setState(data.requires_password ? "password" : "decrypt");
+      const { data, error: rpcError } = await supabase.rpc("get_secret_link_meta", { link_id: id });
+      if (rpcError || !data || data.length === 0) { setState("error"); return; }
+      const meta = data[0];
+      if (meta.is_viewed) { setState("gone"); return; }
+      setState(meta.is_password_protected ? "password" : "decrypt");
     } catch { setState("error"); }
   };
 
@@ -55,7 +54,7 @@ const SecretView = () => {
     if (!checkRateLimit()) return;
     setError("");
     try {
-      const { data } = await supabase.rpc("verify_entry_password", { secret_id: id, password: entryPassword });
+      const { data } = await supabase.rpc("verify_secret_link_password", { link_id: id, attempt: entryPassword });
       if (!data) { incrementAttempts(); setError("Invalid password"); return; }
       setState("decrypt");
     } catch { incrementAttempts(); setError("Verification failed"); }
@@ -65,11 +64,11 @@ const SecretView = () => {
     if (!checkRateLimit()) return;
     setError("");
     try {
-      const { data } = await supabase.from("secrets").select("encrypted_content").eq("id", id).single();
-      if (!data) { incrementAttempts(); setError("Not found"); return; }
-      const decrypted = await decryptMessage(data.encrypted_content, decryptPassword);
+      // Atomically mark as viewed and get encrypted content via RPC
+      const { data: encryptedContent, error: rpcError } = await supabase.rpc("view_secret_link", { link_id: id });
+      if (rpcError || !encryptedContent) { incrementAttempts(); setError("Not found or already viewed"); return; }
+      const decrypted = await decryptMessage(encryptedContent, decryptPassword);
       setDecryptedText(decrypted);
-      await supabase.from("secrets").update({ destroyed: true }).eq("id", id);
       setState("revealed");
     } catch { incrementAttempts(); setError("Wrong password"); }
   };

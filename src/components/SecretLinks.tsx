@@ -13,8 +13,6 @@ export default function SecretLinks() {
   const [generatedLink, setGeneratedLink] = useState("");
   const [copied, setCopied] = useState(false);
   const [creating, setCreating] = useState(false);
-
-  // Track links the user created this session
   const [myLinks, setMyLinks] = useState<{ id: string; created: number; viewed: boolean }[]>([]);
 
   const createLink = async () => {
@@ -28,12 +26,10 @@ export default function SecretLinks() {
 
       let passwordHash: string | null = null;
       if (usePassword && linkPassword.trim()) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(linkPassword);
-        const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-        passwordHash = Array.from(new Uint8Array(hashBuffer))
-          .map((b) => b.toString(16).padStart(2, "0"))
-          .join("");
+        // Hash entry password server-side with bcrypt
+        const { data: hash, error: hashError } = await supabase.rpc("hash_password_bcrypt", { password: linkPassword });
+        if (hashError || !hash) throw new Error("Failed to hash password");
+        passwordHash = hash;
       }
 
       const { data, error } = await supabase
@@ -127,7 +123,6 @@ export default function SecretLinks() {
           </p>
         </div>
 
-        {/* Optional link password */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setUsePassword(!usePassword)}
@@ -160,7 +155,6 @@ export default function SecretLinks() {
           {creating ? "Creating..." : "Create One-Time Link"}
         </Button>
 
-        {/* Generated link */}
         {generatedLink && (
           <div className="bg-secondary/50 rounded p-3 border border-primary/30">
             <span className="text-xs text-primary block mb-2 font-mono">LINK READY:</span>
@@ -180,7 +174,6 @@ export default function SecretLinks() {
           </div>
         )}
 
-        {/* My links tracker */}
         {myLinks.length > 0 && (
           <div className="mt-2">
             <span className="text-xs text-muted-foreground mb-2 block">Your Links (this session)</span>
