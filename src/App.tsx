@@ -32,7 +32,8 @@ const App = () => (
         <Toaster /><Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<ToolsHub />} />
+            <Route path="/vector-crypto" element={<VectorCrypto />} />
             <Route path="/secret/:id" element={<SecretView />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
