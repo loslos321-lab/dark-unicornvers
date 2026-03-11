@@ -240,4 +240,9 @@ export default function StreamPlayer() {
             </span>
           ) : (
             <span>Select stream & press PLAY</span>
-         
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
