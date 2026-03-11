@@ -64,6 +64,7 @@ const App = () => (
             <Route path="/tools/phishing-detective" element={<PhishingDetective />} />
             <Route path="/tools/crypto-speedrun" element={<CryptoSpeedrun />} />
             <Route path="/tools/social-engineering-quiz" element={<SocialEngineeringDefense />} />
+            <Route path="/tools/physics-sandbox" element={<PhysicsSandbox />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
