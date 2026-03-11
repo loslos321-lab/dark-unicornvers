@@ -21,6 +21,7 @@ import SecureClipboard from "./components/tools/SecureClipboard";
 import PhishingDetective from "./components/tools/PhishingDetective";
 import CryptoSpeedrun from "./components/tools/CryptoSpeedrun";
 import SocialEngineeringDefense from "./components/tools/SocialEngineeringDefense";
+import StreamPlayer from "@/components/StreamPlayer";
 
 
 const queryClient = new QueryClient({
@@ -56,15 +57,16 @@ const App = () => (
             <Route path="/tools/secure-notes" element={<SecureNotes />} />
             <Route path="/tools/qr-crypto" element={<QrCrypto />} />
             <Route path="/tools/entropy" element={<EntropyChecker />} />
-            <Route path="*" element={<NotFound />} />
             <Route path="/tools/breach-checker" element={<BreachChecker />} />
             <Route path="/tools/secret-sharing" element={<SecretSharing />} />
             <Route path="/tools/secure-clipboard" element={<SecureClipboard />} />
             <Route path="/tools/phishing-detective" element={<PhishingDetective />} />
             <Route path="/tools/crypto-speedrun" element={<CryptoSpeedrun />} />
             <Route path="/tools/social-engineering-quiz" element={<SocialEngineeringDefense />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        <StreamPlayer />  
       </TooltipProvider>
     </QueryClientProvider>
   </SecurityErrorBoundary>
