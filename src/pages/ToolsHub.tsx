@@ -78,7 +78,33 @@ const tools = [
     path: "/tools/secure-clipboard",
     ready: true,
   },
-];
+// ... bestehende tools ...
+
+{
+  key: "phishing-detective",
+  title: "Phishing Detective",
+  description: "Interactive game: Spot the fake emails, websites and social engineering attempts. Test your security awareness skills in realistic scenarios.",
+  icon: Target,
+  path: "/tools/phishing-detective",
+  ready: false,
+},
+{
+  key: "crypto-speedrun",
+  title: "Crypto Speedrun",
+  description: "Race against time to crack passwords, decrypt messages and solve cryptographic puzzles. Learn why strong passwords matter.",
+  icon: Zap,  // Alternativ: Trophy oder Timer
+  path: "/tools/crypto-speedrun",
+  ready: false,
+},
+{
+  key: "social-engineering-quiz",
+  title: "Social Engineering Defense",
+  description: "Interactive dialog simulator: Detect manipulation attempts, CEO fraud and support scams. Save the company before it's too late.",
+  icon: BrainCircuit,  // Alternativ: MessageCircle oder ShieldAlert
+  path: "/tools/social-engineering-quiz",
+  ready: false,
+},
+  ];
 
 export default function ToolsHub() {
   return (
