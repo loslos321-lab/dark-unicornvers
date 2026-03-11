@@ -30,9 +30,9 @@ const SecretView = () => {
 
   const fetchSecret = async () => {
     try {
-      const { data, error: rpcError } = await supabase.rpc("get_secret_link_meta", { link_id: id });
+      const { data, error: rpcError } = await (supabase.rpc as any)("get_secret_link_meta", { link_id: id });
       if (rpcError || !data || data.length === 0) { setState("error"); return; }
-      const meta = data[0];
+      const meta = data[0] as { is_viewed: boolean; is_password_protected: boolean };
       if (meta.is_viewed) { setState("gone"); return; }
       setState(meta.is_password_protected ? "password" : "decrypt");
     } catch { setState("error"); }
