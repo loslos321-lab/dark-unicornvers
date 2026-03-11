@@ -103,8 +103,8 @@ const tools = [
   icon: BrainCircuit,  // Alternativ: MessageCircle oder ShieldAlert
   path: "/tools/social-engineering-quiz",
   ready: false,
-},
-  ];
+}
+  ],
 
 export default function ToolsHub() {
   return (
