@@ -1,4 +1,4 @@
-import { Shield, Lock, Wrench, ArrowRight, Sparkles, Key, FileLock, FileText, QrCode, Gauge, Search, Split, Clipboard, Trophy, BrainCircuit, Target, Atom } from "lucide-react";
+import { Shield, Lock, Wrench, ArrowRight, Sparkles, Key, FileLock, FileText, QrCode, Gauge, Search, Split, Clipboard, Trophy, BrainCircuit, Target, Atom, Brain } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +6,15 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 const tools = [
+  {
+    key: "browser-agent",
+    title: "Browser Agent",
+    description: "Local AI assistant running 100% in your browser. Chat, search, analyze with zero backend.",
+    icon: Brain,
+    path: "/browser-agent",
+    ready: true,
+    premium: false,
+  },
   {
   key: "physics-sandbox",
   title: "Physics Sandbox",

@@ -23,6 +23,7 @@ import CryptoSpeedrun from "./components/tools/CryptoSpeedrun";
 import SocialEngineeringDefense from "./components/tools/SocialEngineeringDefense";
 import StreamPlayer from "@/components/StreamPlayer";
 import PhysicsSandbox from "@/components/tools/PhysicsSandbox";
+import BrowserAgent from "@/components/BrowserAgent";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +49,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ToolsHub />} />
+            <Route path="/browser-agent" element={<BrowserAgent />} />
             <Route path="/vector-crypto" element={<VectorCrypto />} />
             <Route path="/secret/:id" element={<SecretView />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
