@@ -1,5 +1,9 @@
-import { Shield, Lock, Wrench, ArrowRight } from "lucide-react";
+import { Shield, Lock, Wrench, ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const tools = [
   {
