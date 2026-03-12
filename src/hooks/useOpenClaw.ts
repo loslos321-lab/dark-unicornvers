@@ -52,14 +52,10 @@ export const useOpenClaw = () => {
             { type: 'module' }
           );
 
-          // Setup timeout for worker readiness (5 min for first model download)
-          const initTimeout = setTimeout(() => {
-            worker.terminate();
-            reject(new Error('Worker initialization timeout'));
-          }, 300000);
+          // No timeout - model download can take very long on slow connections
+          // Progress is shown via onProgress callback
 
           worker.onerror = (event) => {
-            clearTimeout(initTimeout);
             console.error('[OpenClaw] Worker error:', event.message, event.filename, event.lineno);
             worker.terminate();
             reject(new Error(`Worker error: ${event.message}`));
@@ -73,14 +69,8 @@ export const useOpenClaw = () => {
             setDownloadProgress(progress);
           });
 
-          Promise.race([
-            wrappedAgent.initialize(onProgress),
-            new Promise((_, rej) => 
-              setTimeout(() => rej(new Error('Agent init timeout')), 300000)
-            )
-          ])
+          wrappedAgent.initialize(onProgress)
             .then(() => {
-              clearTimeout(initTimeout);
               workerRef.current = worker;
               agentRef.current = wrappedAgent;
               console.log('[OpenClaw] Agent initialized successfully');
@@ -90,7 +80,6 @@ export const useOpenClaw = () => {
               resolve(true);
             })
             .catch((err) => {
-              clearTimeout(initTimeout);
               reject(err);
             });
         } catch (err) {
