@@ -239,7 +239,7 @@ export const BrowserAgent = () => {
             <Card className="bg-slate-900/50 border-red-500/30 p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-mono text-sm font-semibold text-red-400 flex items-center gap-2">
-                  <Terminal className="w-4 h-4" /> Kali Tools
+                  <TerminalIcon className="w-4 h-4" /> Kali Tools
                 </h3>
                 <Button 
                   variant="ghost" 
