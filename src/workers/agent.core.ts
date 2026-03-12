@@ -338,11 +338,71 @@ Always remind users to ensure they have authorization.`;
   }
 
   private async realCurl(params: any) {
-    const url = params.url || params.target || 'https://api.github.com';
+    let url = params.url || params.target || 'https://api.github.com';
     const method = (params.method || 'GET').toUpperCase();
     const headers = params.headers || {};
     const body = params.data || params.body;
-    const timeout = params.timeout || 30000;
+    const timeout = Math.min(params.timeout || 10000, 30000); // Max 30s, default 10s
+    
+    // SSRF Protection
+    try {
+      const parsedUrl = new URL(url);
+      
+      // Block non-http protocols
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+        return { error: 'Only HTTP/HTTPS protocols allowed', blocked: true };
+      }
+      
+      // Block internal/private IPs
+      const hostname = parsedUrl.hostname;
+      const blockedPatterns = [
+        /^127\./, // Loopback
+        /^10\./, // Private Class A
+        /^172\.(1[6-9]|2[0-9]|3[01])\./, // Private Class B
+        /^192\.168\./, // Private Class C
+        /^169\.254\./, // Link-local
+        /^0\./, // Current network
+        /^::1$/, // IPv6 loopback
+        /^fc00:/i, // IPv6 unique local
+        /^fe80:/i, // IPv6 link-local
+        /^localhost$/i,
+        /\.internal$/i,
+        /\.local$/i,
+        /\.corp$/i,
+        /\.home$/i
+      ];
+      
+      for (const pattern of blockedPatterns) {
+        if (pattern.test(hostname)) {
+          return { 
+            error: 'Access to internal/private networks blocked (SSRF protection)', 
+            blocked: true,
+            hostname 
+          };
+        }
+      }
+      
+      // Block common cloud metadata endpoints
+      const blockedHosts = [
+        '169.254.169.254', // AWS, Azure, GCP metadata
+        'metadata.google.internal',
+        'metadata.google',
+        'metadata.azure.internal',
+        'instance-data',
+        'metadata.eks.amazonaws.com'
+      ];
+      
+      if (blockedHosts.includes(hostname.toLowerCase())) {
+        return { 
+          error: 'Cloud metadata endpoints blocked', 
+          blocked: true,
+          hostname 
+        };
+      }
+      
+    } catch (e) {
+      return { error: 'Invalid URL format' };
+    }
     
     const startTime = Date.now();
     
@@ -720,19 +780,59 @@ Always remind users to ensure they have authorization.`;
   }
 
   private executeJavaScript(params: any): any {
-    const code = params.code || params.script || '';
+    const code = (params.code || params.script || '').trim();
+    
+    // Security: Block dangerous patterns
+    const dangerousPatterns = [
+      /eval\s*\(/i,
+      /Function\s*\(/i,
+      /constructor\s*\(/i,
+      /prototype/i,
+      /__proto__/i,
+      /import\s*\(/i,
+      /fetch\s*\(/i, // Block fetch to prevent SSRF
+      /XMLHttpRequest/i,
+      /WebSocket/i,
+      /Worker/i,
+      /indexedDB/i,
+      /localStorage/i,
+      /sessionStorage/i,
+      /document\./i,
+      /window\./i,
+      /top\./i,
+      /parent\./i,
+      /self\./i,
+      /globalThis/i
+    ];
+    
+    for (const pattern of dangerousPatterns) {
+      if (pattern.test(code)) {
+        return {
+          tool: 'js-exec',
+          type: 'BLOCKED',
+          error: 'Security violation: Potentially dangerous code pattern detected',
+          blocked_pattern: pattern.toString()
+        };
+      }
+    }
+    
+    // Max code length
+    if (code.length > 5000) {
+      return {
+        tool: 'js-exec',
+        type: 'BLOCKED',
+        error: 'Code exceeds maximum length of 5000 characters'
+      };
+    }
     
     try {
-      // Create a safe-ish sandbox
-      const sandbox = {
+      // Limited safe sandbox - NO fetch, NO storage, NO network
+      const sandbox: Record<string, any> = {
         console: {
-          log: (...args: any[]) => args.join(' '),
-          error: (...args: any[]) => args.join(' '),
-          warn: (...args: any[]) => args.join(' ')
+          log: (...args: any[]) => args.map(a => String(a)).join(' '),
+          error: (...args: any[]) => args.map(a => String(a)).join(' '),
+          warn: (...args: any[]) => args.map(a => String(a)).join(' ')
         },
-        fetch,
-        setTimeout,
-        clearTimeout,
         JSON,
         Math,
         Date,
@@ -743,7 +843,6 @@ Always remind users to ensure they have authorization.`;
         RegExp,
         Error,
         Promise,
-        crypto,
         btoa,
         atob,
         encodeURIComponent,
@@ -752,20 +851,33 @@ Always remind users to ensure they have authorization.`;
         parseFloat,
         isNaN,
         isFinite,
-        escape: (s: string) => encodeURIComponent(s),
-        unescape: (s: string) => decodeURIComponent(s)
+        setTimeout: () => { throw new Error('setTimeout disabled'); },
+        clearTimeout: () => {},
+        crypto: {
+          getRandomValues: (arr: Uint8Array) => crypto.getRandomValues(arr),
+          subtle: undefined // No subtle crypto to prevent key extraction
+        }
       };
       
-      const fn = new Function(...Object.keys(sandbox), `"use strict"; ${code}`);
+      const fn = new Function(...Object.keys(sandbox), `"use strict"; return (function() { ${code} })();`);
       const result = fn(...Object.values(sandbox));
+      
+      // Sanitize result
+      const sanitizedResult = typeof result === 'object' 
+        ? JSON.parse(JSON.stringify(result, (key, value) => {
+            if (typeof value === 'function') return '[Function]';
+            if (value instanceof Error) return value.message;
+            return value;
+          }))
+        : result;
       
       return {
         tool: 'js-exec',
         type: 'REAL',
         executed: true,
-        result: result,
+        result: sanitizedResult,
         result_type: typeof result,
-        code_preview: code.substring(0, 100) + (code.length > 100 ? '...' : '')
+        code_preview: code.substring(0, 50) + (code.length > 50 ? '...' : '')
       };
     } catch (error: any) {
       return {
@@ -773,8 +885,7 @@ Always remind users to ensure they have authorization.`;
         type: 'REAL',
         executed: false,
         error: error.message,
-        line: error.lineNumber,
-        stack: error.stack?.split('\n')[0]
+        line: error.lineNumber
       };
     }
   }

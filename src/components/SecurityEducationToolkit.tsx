@@ -42,6 +42,15 @@ export const SecurityEducationToolkit = () => {
 
   // Analyze token structure (NOT validate against Discord - that would be unauthorized access)
   const analyzeToken = (input: string): TokenAnalysis => {
+    // Security: Limit input length to prevent DoS
+    if (input.length > 5000) {
+      return { 
+        valid: false, 
+        format: 'Input too long',
+        warning: 'Token exceeds maximum length of 5000 characters'
+      };
+    }
+    
     // Remove whitespace
     const clean = input.trim();
     
@@ -57,18 +66,47 @@ export const SecurityEducationToolkit = () => {
         warning: 'This is NOT a valid Discord token format'
       };
     }
+    
+    // Security: Limit part lengths
+    if (parts.some(p => p.length > 2000)) {
+      return {
+        valid: false,
+        format: 'Invalid',
+        warning: 'Token parts exceed maximum length'
+      };
+    }
 
     try {
+      // Security: Validate base64url characters before decoding
+      const isValidBase64Url = (str: string) => /^[A-Za-z0-9_-]+$/.test(str);
+      if (!isValidBase64Url(parts[0]) || !isValidBase64Url(parts[1])) {
+        throw new Error('Invalid characters in Base64Url');
+      }
+      
       // Try to decode User ID (first part)
       const userIdDecoded = atob(parts[0].replace(/-/g, '+').replace(/_/g, '/'));
+      
+      // Security: Validate decoded length
+      if (userIdDecoded.length > 1000) {
+        throw new Error('Decoded ID too long');
+      }
       
       // Try to decode timestamp (second part)
       let timestamp = '';
       try {
         const tsBytes = atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
+        // Security: Limit array size
+        if (tsBytes.length > 100) {
+          throw new Error('Timestamp data too long');
+        }
         const tsHex = Array.from(tsBytes).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
         const tsNum = parseInt(tsHex, 16);
-        timestamp = new Date(tsNum).toISOString();
+        // Security: Validate timestamp is reasonable (2000-2100)
+        if (tsNum < 946684800 || tsNum > 4102444800) {
+          timestamp = 'Invalid timestamp';
+        } else {
+          timestamp = new Date(tsNum * 1000).toISOString();
+        }
       } catch (e) {
         timestamp = 'Unknown';
       }
