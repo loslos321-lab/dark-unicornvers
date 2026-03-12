@@ -42,13 +42,8 @@ const api = {
     }
     
     try {
-      const generator = agent.chat(message, history);
-      
-      for await (const chunk of generator) {
-        onChunk(chunk);
-      }
-      
-      return true;
+      const response = await agent.chat(message, history, onChunk);
+      return response;
     } catch (err: any) {
       console.error('[Worker] Chat error:', err);
       throw err;

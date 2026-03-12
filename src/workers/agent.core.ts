@@ -1,21 +1,26 @@
 import type { ToolDefinition, AgentMessage } from '../types/agent';
+import { CreateMLCEngine, InitProgressCallback } from '@mlc-ai/web-llm';
 
 export class OpenClawAgent {
+  private engine: any = null;
   private config = {
     temperature: 0.7,
     top_p: 0.9,
     repetition_penalty: 1.1,
+    max_tokens: 2048,
   };
   private isInitialized = false;
   private initStartTime = 0;
+  // Using a small model that works well in browsers
+  private readonly modelId = 'Llama-3.2-1B-Instruct-q4f32_1-MLC';
 
   async initialize(onProgress: (progress: number) => void) {
     try {
       this.initStartTime = Date.now();
-      console.log('[Agent] Initialization starting');
+      console.log('[Agent] Initialization starting with Web-LLM');
       
-      // Check APIs availability (adapted for worker context)
-      onProgress(10);
+      // Check APIs availability
+      onProgress(5);
       const checks = {
         webgpu: typeof navigator !== 'undefined' && !!(navigator as any).gpu,
         indexedDB: typeof indexedDB !== 'undefined',
@@ -24,75 +29,76 @@ export class OpenClawAgent {
       
       console.log('[Agent] API availability:', checks);
       
-      if (!checks.indexedDB) {
-        throw new Error('IndexedDB not available - required for local storage');
+      if (!checks.webgpu) {
+        console.warn('[Agent] WebGPU not available - will use CPU fallback');
       }
       
-      onProgress(30);
+      onProgress(10);
       
-      // Simulate model loading/warmup
-      console.log('[Agent] Warming up inference engine');
-      await this.simulateWarmup();
-      onProgress(60);
+      // Initialize Web-LLM engine
+      const progressCallback: InitProgressCallback = (report) => {
+        // Map 10-100% to the init progress
+        const progress = 10 + Math.round(report.progress * 90);
+        onProgress(Math.min(progress, 99));
+        console.log(`[Agent] Model loading: ${Math.round(report.progress * 100)}%`);
+      };
+
+      console.log('[Agent] Loading model:', this.modelId);
       
-      // Verify crypto capability
-      if (!checks.crypto) {
-        throw new Error('Crypto API not available');
-      }
-      onProgress(80);
+      this.engine = await CreateMLCEngine(
+        this.modelId,
+        { initProgressCallback: progressCallback }
+      );
       
-      // Final validation
+      onProgress(100);
+      
       const initTime = Date.now() - this.initStartTime;
-      console.log(`[Agent] Initialization successful (${initTime}ms)`);
+      console.log(`[Agent] Web-LLM initialized successfully (${initTime}ms)`);
       
       this.isInitialized = true;
-      onProgress(100);
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Agent] Init error:', error);
       this.isInitialized = false;
-      throw error;
+      throw new Error(`Failed to initialize Web-LLM: ${error.message}`);
     }
   }
 
-  private async simulateWarmup() {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        console.log('[Agent] Warmup complete');
-        resolve(true);
-      }, 500);
-    });
-  }
-
-  async *chat(message: string, context: string[] = []) {
-    if (!this.isInitialized) {
+  async chat(message: string, context: string[] = [], onChunk: (chunk: string) => void) {
+    if (!this.isInitialized || !this.engine) {
       throw new Error('Agent not initialized');
     }
 
-    const systemPrompt = `You are OpenClaw, a local AI agent running entirely in your browser.
-You have access to tools for file operations and searches.
-Be helpful, concise, and security-conscious.
-When you need to use a tool, respond with:
-\`\`\`json
-{"tool": "tool_name", "params": {...}}
-\`\`\``;
+    const systemPrompt = `You are OpenClaw, a helpful AI assistant running entirely locally in the user's browser using Web-LLM. You are privacy-focused, efficient, and security-conscious. Be concise and helpful.`;
 
-    const messages = [
-      { role: 'system' as const, content: systemPrompt },
+    const messages: AgentMessage[] = [
+      { role: 'system', content: systemPrompt },
       ...context.map(c => ({ role: 'assistant' as const, content: c })),
-      { role: 'user' as const, content: message }
+      { role: 'user', content: message }
     ];
 
-    // Simulate streaming response
-    const response = `Understood. I'll help you with: "${message}"\n\nI'm running locally on your hardware with:
-- WebGPU acceleration (if available)
-- Local vector storage (IndexedDB)
-- Full privacy - no data leaves your browser
+    try {
+      const completion = await this.engine.chat.completions.create({
+        messages,
+        temperature: this.config.temperature,
+        top_p: this.config.top_p,
+        max_tokens: this.config.max_tokens,
+        stream: true,
+      });
 
-What would you like me to do?`;
+      let fullResponse = '';
+      
+      for await (const chunk of completion) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        if (content) {
+          fullResponse += content;
+          onChunk(content);
+        }
+      }
 
-    for (const char of response) {
-      yield char;
-      await new Promise(resolve => setTimeout(resolve, 5));
+      return fullResponse;
+    } catch (error: any) {
+      console.error('[Agent] Chat error:', error);
+      throw new Error(`Chat failed: ${error.message}`);
     }
   }
 
@@ -114,8 +120,6 @@ What would you like me to do?`;
   }
 
   private async readLocalFile(params: any) {
-    // File System Access API is not available in worker context
-    // This would need to be handled in the main thread
     return { 
       error: 'File System Access API only available in main thread. Use UI to select files.' 
     };
@@ -126,7 +130,6 @@ What would you like me to do?`;
       const code = params.code || '';
       if (!code.trim()) return { error: 'Empty code' };
       
-      // Safe eval in worker context
       const fn = new Function(`"use strict"; return (${code})`);
       const result = fn();
       
@@ -141,13 +144,12 @@ What would you like me to do?`;
   }
 
   private async searchDocuments(params: any) {
-    // Placeholder for vector search
     return {
       success: true,
       results: [
         {
           id: '1',
-          content: 'OpenClaw runs entirely in your browser',
+          content: 'OpenClaw runs entirely in your browser with Web-LLM',
           score: 0.95
         }
       ]

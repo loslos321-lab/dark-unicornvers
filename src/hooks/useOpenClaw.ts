@@ -163,13 +163,13 @@ export const useOpenClaw = () => {
           });
         });
 
-        // Call chat with callback
-        await Promise.race([
+        // Call chat with callback and get full response
+        fullResponse = await Promise.race([
           agentRef.current.chat(message, history, onChunk),
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Chat timeout')), 30000)
+            setTimeout(() => reject(new Error('Chat timeout')), 60000)
           )
-        ]);
+        ]) as string;
 
         // Add assistant response
         setMessages(prev => [...prev, { role: 'assistant', content: fullResponse }]);
