@@ -190,7 +190,7 @@ export const BrowserAgent = () => {
             {/* Status Card */}
             <Card className="bg-slate-900/50 border-red-500/30 p-4">
               <h3 className="font-mono text-sm font-semibold text-red-400 mb-3 flex items-center gap-2">
-                <Terminal className="w-4 h-4" /> System Status
+                <TerminalIcon className="w-4 h-4" /> System Status
               </h3>
               <div className="space-y-2 text-xs font-mono text-slate-300">
                 <div className="flex justify-between">
