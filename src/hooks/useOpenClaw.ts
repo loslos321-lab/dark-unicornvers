@@ -7,7 +7,7 @@ export const useOpenClaw = () => {
   const agentRef = useRef<any>(null);
   const vectorStoreRef = useRef<LocalVectorStore | null>(null);
   const retryCountRef = useRef(0);
-  const maxRetries = 3;
+  const maxRetries = 1; // Less retries since model download takes time
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'thinking'>('idle');
   const [thoughts, setThoughts] = useState<string[]>([]);
   const [downloadProgress, setDownloadProgress] = useState(0);
@@ -52,11 +52,11 @@ export const useOpenClaw = () => {
             { type: 'module' }
           );
 
-          // Setup timeout for worker readiness
+          // Setup timeout for worker readiness (3 min for first model download)
           const initTimeout = setTimeout(() => {
             worker.terminate();
             reject(new Error('Worker initialization timeout'));
-          }, 10000);
+          }, 180000);
 
           worker.onerror = (event) => {
             clearTimeout(initTimeout);
@@ -101,7 +101,7 @@ export const useOpenClaw = () => {
       const errMsg = err?.message || String(err) || 'Unknown error';
       console.error('[OpenClaw] Init failed:', errMsg);
       
-      if (retryCountRef.current < maxRetries) {
+      if (retryCountRef.current < maxRetries && !errMsg.includes('timeout')) {
         retryCountRef.current += 1;
         console.log(`[OpenClaw] Retrying in 2s... (${retryCountRef.current}/${maxRetries})`);
         setError(`Connection failed, retrying... (${retryCountRef.current}/${maxRetries})`);

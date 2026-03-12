@@ -23,7 +23,11 @@ export const BrowserAgent = () => {
   useEffect(() => {
     switch (status) {
       case 'loading':
-        setInitMessage(`Initializing agent... ${Math.round(downloadProgress)}%`);
+        if (downloadProgress > 0 && downloadProgress < 100) {
+          setInitMessage(`Downloading AI model... ${Math.round(downloadProgress)}% (first time only, ~600MB)`);
+        } else {
+          setInitMessage(`Initializing agent... ${Math.round(downloadProgress)}%`);
+        }
         break;
       case 'ready':
         setInitMessage('Agent online - ready to help!');
