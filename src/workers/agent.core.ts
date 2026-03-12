@@ -14,14 +14,12 @@ export class OpenClawAgent {
       this.initStartTime = Date.now();
       console.log('[Agent] Initialization starting');
       
-      // Check APIs availability
+      // Check APIs availability (adapted for worker context)
       onProgress(10);
       const checks = {
-        webgpu: !!navigator.gpu,
-        fileSystemAccess: 'showOpenFilePicker' in window,
-        indexedDB: !!('indexedDB' in window),
-        webWorkers: typeof Worker !== 'undefined',
-        crypto: !!crypto?.getRandomValues
+        webgpu: typeof navigator !== 'undefined' && !!(navigator as any).gpu,
+        indexedDB: typeof indexedDB !== 'undefined',
+        crypto: typeof crypto !== 'undefined' && !!(crypto as any)?.getRandomValues
       };
       
       console.log('[Agent] API availability:', checks);
@@ -37,7 +35,7 @@ export class OpenClawAgent {
       await this.simulateWarmup();
       onProgress(60);
       
-      // Verify vector store capability
+      // Verify crypto capability
       if (!checks.crypto) {
         throw new Error('Crypto API not available');
       }
@@ -116,25 +114,11 @@ What would you like me to do?`;
   }
 
   private async readLocalFile(params: any) {
-    try {
-      if (!('showOpenFilePicker' in window)) {
-        return { error: 'File System Access API not supported' };
-      }
-      
-      const [fileHandle] = await (window as any).showOpenFilePicker();
-      const file = await fileHandle.getFile();
-      const content = await file.text();
-      
-      return {
-        success: true,
-        filename: file.name,
-        size: file.size,
-        content: content.substring(0, 5000) // Limit to 5k chars
-      };
-    } catch (error: any) {
-      console.error('[Agent] File read error:', error);
-      return { error: error.message };
-    }
+    // File System Access API is not available in worker context
+    // This would need to be handled in the main thread
+    return { 
+      error: 'File System Access API only available in main thread. Use UI to select files.' 
+    };
   }
 
   private sandboxExecute(params: any) {

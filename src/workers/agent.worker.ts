@@ -6,7 +6,7 @@ let isInitialized = false;
 let initializationError: string | null = null;
 
 const api = {
-  async initialize() {
+  async initialize(onProgress?: (progress: number) => void) {
     if (isInitialized) {
       console.log('[Worker] Already initialized');
       return;
@@ -21,22 +21,22 @@ const api = {
       console.log('[Worker] Beginning agent initialization');
       
       await agent.initialize((progress: number) => {
-        self.postMessage({ type: 'download_progress', progress });
+        if (onProgress) {
+          onProgress(progress);
+        }
       });
       
       isInitialized = true;
       console.log('[Worker] Initialization successful');
-      self.postMessage({ type: 'ready' });
     } catch (err: any) {
       const errMsg = err?.message || String(err) || 'Unknown initialization error';
       console.error('[Worker] Initialization failed:', errMsg);
       initializationError = errMsg;
-      self.postMessage({ type: 'error', data: errMsg });
       throw err;
     }
   },
 
-  async *chat(message: string, history: string[]) {
+  async chat(message: string, history: string[], onChunk: (chunk: string) => void) {
     if (!isInitialized) {
       throw new Error('Agent not initialized. Call initialize() first.');
     }
@@ -45,14 +45,12 @@ const api = {
       const generator = agent.chat(message, history);
       
       for await (const chunk of generator) {
-        yield chunk;
+        onChunk(chunk);
       }
+      
+      return true;
     } catch (err: any) {
       console.error('[Worker] Chat error:', err);
-      self.postMessage({ 
-        type: 'error', 
-        data: err?.message || 'Chat failed' 
-      });
       throw err;
     }
   },
@@ -66,10 +64,6 @@ const api = {
       return await agent.executeTool(tool);
     } catch (err: any) {
       console.error('[Worker] Tool execution error:', err);
-      self.postMessage({ 
-        type: 'error', 
-        data: err?.message || 'Tool execution failed' 
-      });
       throw err;
     }
   },

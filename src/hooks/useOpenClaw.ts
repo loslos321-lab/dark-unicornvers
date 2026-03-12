@@ -58,31 +58,6 @@ export const useOpenClaw = () => {
             reject(new Error('Worker initialization timeout'));
           }, 10000);
 
-          // Message handler for streaming
-          const messageHandler = (e: MessageEvent) => {
-            const { type, data, progress } = e.data;
-            
-            switch (type) {
-              case 'ready':
-                clearTimeout(initTimeout);
-                console.log('[OpenClaw] Worker ready');
-                break;
-              case 'token':
-                setThoughts(prev => [...prev, data]);
-                break;
-              case 'download_progress':
-                setDownloadProgress(progress || 0);
-                break;
-              case 'tool_detected':
-                console.log('[OpenClaw] Tool detected:', data);
-                break;
-              case 'error':
-                console.error('[OpenClaw] Worker error event:', data);
-                break;
-            }
-          };
-
-          worker.onmessage = messageHandler;
           worker.onerror = (event) => {
             clearTimeout(initTimeout);
             console.error('[OpenClaw] Worker error:', event.message, event.filename, event.lineno);
@@ -93,9 +68,13 @@ export const useOpenClaw = () => {
           // Wrap worker with Comlink
           const wrappedAgent = Comlink.wrap(worker);
           
-          // Initialize agent with timeout
+          // Initialize agent with progress callback
+          const onProgress = Comlink.proxy((progress: number) => {
+            setDownloadProgress(progress);
+          });
+
           Promise.race([
-            wrappedAgent.initialize(),
+            wrappedAgent.initialize(onProgress),
             new Promise((_, rej) => 
               setTimeout(() => rej(new Error('Agent init timeout')), 8000)
             )
@@ -110,7 +89,10 @@ export const useOpenClaw = () => {
               retryCountRef.current = 0;
               resolve(true);
             })
-            .catch(reject);
+            .catch((err) => {
+              clearTimeout(initTimeout);
+              reject(err);
+            });
         } catch (err) {
           reject(err);
         }
@@ -165,27 +147,29 @@ export const useOpenClaw = () => {
       // Add user message
       setMessages(prev => [...prev, { role: 'user', content: message }]);
 
-      // Get chat history summaries
-      const history = messages.slice(-5).map(m => m.content);
-
       try {
-        // Stream response from agent with timeout
-        const generator = await Promise.race([
-          agentRef.current.chat(message, history),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Chat timeout')), 30000)
-          )
-        ]);
-        
+        // Get chat history summaries
+        const history = messages.slice(-5).map(m => m.content);
+
         let fullResponse = '';
-        for await (const chunk of generator) {
+        
+        // Create callback for streaming chunks using Comlink proxy
+        const onChunk = Comlink.proxy((chunk: string) => {
           fullResponse += chunk;
           setThoughts(prev => {
             const last = prev[prev.length - 1] || '';
             const updated = [...prev.slice(0, -1), last + chunk];
             return updated;
           });
-        }
+        });
+
+        // Call chat with callback
+        await Promise.race([
+          agentRef.current.chat(message, history, onChunk),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Chat timeout')), 30000)
+          )
+        ]);
 
         // Add assistant response
         setMessages(prev => [...prev, { role: 'assistant', content: fullResponse }]);
