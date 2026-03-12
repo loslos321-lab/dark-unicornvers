@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Terminal as TerminalIcon, X, Maximize2, Minimize2, Trash2 } from 'lucide-react';
 
 interface TerminalProps {
-  onExecute: (command: string) => Promise<any>;
+  onExecute: (tool: string, params?: any) => Promise<any>;
   isReady: boolean;
 }
 

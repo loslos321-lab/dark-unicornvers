@@ -149,7 +149,7 @@ export const BrowserAgent = () => {
 
         {/* Terminal */}
         <Terminal 
-          onExecute={async (tool, params) => {
+          onExecute={async (tool: string, params?: any) => {
             if (tool === 'get_stats') {
               return sessionInfo || { status: 'No session data' };
             }
