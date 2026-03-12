@@ -21,7 +21,7 @@ export const EthicalHackingAgreement = ({ onAccept, onDecline }: EthicalHackingA
   const allChecked = Object.values(agreements).every(v => v);
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
       <Card className="max-w-2xl w-full bg-slate-950 border-red-500/50 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="p-6 border-b border-red-500/30 bg-red-950/20">

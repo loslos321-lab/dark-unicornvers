@@ -142,12 +142,15 @@ export const useOpenClaw = () => {
   }, []);
 
   const sendMessage = useCallback(async (message: string) => {
+    console.log('[OpenClaw] sendMessage called, agreementAccepted:', agreementAccepted);
+    
     if (!agentRef.current || status === 'loading') {
       setError(status === 'loading' ? 'Agent still initializing' : 'Agent not ready');
       return;
     }
     
     if (!agreementAccepted) {
+      console.log('[OpenClaw] Agreement not accepted, blocking message');
       setError('You must accept the ethical hacking agreement first');
       return;
     }
