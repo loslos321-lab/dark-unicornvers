@@ -24,6 +24,7 @@ import SocialEngineeringDefense from "./components/tools/SocialEngineeringDefens
 import StreamPlayer from "@/components/StreamPlayer";
 import PhysicsSandbox from "@/components/tools/PhysicsSandbox";
 import HashLab from "@/components/tools/HashLab";
+import PasswordGame from "@/components/tools/PasswordGame";
 import BrowserAgent from "@/components/BrowserAgent";
 import { SecurityEducationToolkit } from "@/components/SecurityEducationToolkit";
 
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/tools/social-engineering-quiz" element={<SocialEngineeringDefense />} />
             <Route path="/tools/physics-sandbox" element={<PhysicsSandbox />} />
             <Route path="/tools/hash-lab" element={<HashLab />} />
+            <Route path="/tools/password-game" element={<PasswordGame />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

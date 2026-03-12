@@ -2,7 +2,7 @@ import {
   Shield, Lock, Key, FileLock, FileText, QrCode, 
   Target, Brain, BookOpen, Atom, BrainCircuit, 
   Gauge, Search, Split, Clipboard, Trophy, Sparkles,
-  ChevronRight, Zap, Terminal
+  ChevronRight, Zap, Terminal, Gamepad2
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,41 @@ import { toast } from "sonner";
 
 // Tools organized by category
 const categories = [
+  {
+    id: "games",
+    title: "GAMES & CHALLENGES",
+    description: "Learn security through play",
+    neon: "pink",
+    tools: [
+      {
+        key: "password-game",
+        title: "The Password Game",
+        description: "Create a password with increasingly absurd requirements. Can you reach rule 19?",
+        icon: Gamepad2,
+        path: "/tools/password-game",
+        ready: true,
+        badge: "HARD",
+      },
+      {
+        key: "phishing-detective",
+        title: "Phishing Detective",
+        description: "Spot fake emails, websites and social engineering attempts.",
+        icon: Target,
+        path: "/tools/phishing-detective",
+        ready: true,
+        badge: "GAME",
+      },
+      {
+        key: "crypto-speedrun",
+        title: "Crypto Speedrun",
+        description: "Race against time to crack passwords and solve crypto puzzles.",
+        icon: Trophy,
+        path: "/tools/crypto-speedrun",
+        ready: true,
+        badge: "CHALLENGE",
+      },
+    ]
+  },
   {
     id: "learning",
     title: "LEARNING & DEFENSE",
@@ -27,15 +62,6 @@ const categories = [
         path: "/security-education",
         ready: true,
         badge: "EDU",
-      },
-      {
-        key: "phishing-detective",
-        title: "Phishing Detective",
-        description: "Spot fake emails, websites and social engineering attempts.",
-        icon: Target,
-        path: "/tools/phishing-detective",
-        ready: true,
-        badge: "GAME",
       },
       {
         key: "social-engineering-quiz",
