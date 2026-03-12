@@ -125,14 +125,18 @@ export const useOpenClaw = () => {
   }, [initializeAgent]);
 
   const acceptAgreement = useCallback(async () => {
+    // Set local state immediately
+    setAgreementAccepted(true);
+    console.log('[OpenClaw] Ethical agreement accepted (local)');
+    
+    // Also notify worker if available
     if (agentRef.current) {
       try {
         await agentRef.current.acceptEthicalAgreement?.();
-        setAgreementAccepted(true);
-        console.log('[OpenClaw] Ethical agreement accepted');
+        console.log('[OpenClaw] Ethical agreement synced to worker');
       } catch (err: any) {
-        console.error('[OpenClaw] Failed to accept agreement:', err);
-        setError('Failed to accept agreement: ' + err.message);
+        // Worker call failed, but local state is already set
+        console.warn('[OpenClaw] Worker sync failed (non-critical):', err.message);
       }
     }
   }, []);
