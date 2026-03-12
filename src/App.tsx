@@ -24,6 +24,7 @@ import SocialEngineeringDefense from "./components/tools/SocialEngineeringDefens
 import StreamPlayer from "@/components/StreamPlayer";
 import PhysicsSandbox from "@/components/tools/PhysicsSandbox";
 import BrowserAgent from "@/components/BrowserAgent";
+import { SecurityEducationToolkit } from "@/components/SecurityEducationToolkit";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,6 +51,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<ToolsHub />} />
             <Route path="/browser-agent" element={<BrowserAgent />} />
+            <Route path="/security-education" element={<SecurityEducationToolkit />} />
             <Route path="/vector-crypto" element={<VectorCrypto />} />
             <Route path="/secret/:id" element={<SecretView />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
