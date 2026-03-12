@@ -76,6 +76,14 @@ const api = {
     }
     agent.clearSession();
     return { cleared: true };
+  },
+
+  acceptEthicalAgreement() {
+    if (!isInitialized) {
+      throw new Error('Agent not initialized');
+    }
+    agent.acceptEthicalAgreement();
+    return { accepted: true };
   }
 };
 
