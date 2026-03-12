@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BrainCircuit, MessageSquare, Shield, AlertTriangle, CheckCircle, XCircle, User, Building, Phone, Mail, RefreshCw, Trophy, Lock } from "lucide-react";
+import { BrainCircuit, MessageSquare, Shield, AlertTriangle, CheckCircle, XCircle, User, Building, Phone, Mail, RefreshCw, Trophy, Lock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import ToolLayout from "@/components/ToolLayout";
