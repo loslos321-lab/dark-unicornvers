@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useOpenClaw } from '@/hooks/useOpenClaw';
 import { NeuralSandbox } from './NeuralSandbox';
 import { AgentChat } from './AgentChat';
+import { Terminal } from './Terminal';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Brain, CheckCircle, Terminal, Shield, Trash2, FileText, Lock } from 'lucide-react';
+import { AlertCircle, Brain, CheckCircle, Terminal as TerminalIcon, Shield, Trash2, FileText, Lock, Wifi, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const BrowserAgent = () => {
@@ -46,19 +47,20 @@ export const BrowserAgent = () => {
   }, [status, downloadProgress]);
 
   const tools = [
-    { name: 'nmap', desc: 'Port scanner', icon: '🌐' },
+    { name: 'curl', desc: 'HTTP/HTTPS requests', icon: '🌐' },
+    { name: 'wget', desc: 'Download files', icon: '⬇️' },
+    { name: 'nmap', desc: 'Port scanner', icon: '🔍' },
     { name: 'dirb', desc: 'Directory brute', icon: '📁' },
     { name: 'sqlmap', desc: 'SQL injection', icon: '💉' },
     { name: 'hashcat', desc: 'Hash cracker', icon: '🔐' },
     { name: 'john', desc: 'Password cracker', icon: '🔑' },
     { name: 'whois', desc: 'Domain lookup', icon: '📋' },
-    { name: 'dig', desc: 'DNS enum', icon: '🔍' },
-    { name: 'curl', desc: 'HTTP requests', icon: '🌊' },
-    { name: 'base64', desc: 'Encoder', icon: '🔤' },
-    { name: 'hash-md5', desc: 'MD5 hash', icon: '#️⃣' },
-    { name: 'hash-sha256', desc: 'SHA256 hash', icon: '#️⃣' },
-    { name: 'exploitdb', desc: 'Exploit search', icon: '💣' },
-    { name: 'cve-lookup', desc: 'CVE search', icon: '📊' },
+    { name: 'dig', desc: 'DNS enum', icon: '🌐' },
+    { name: 'github-clone', desc: 'Clone from GitHub', icon: '🐙' },
+    { name: 'install-tool', desc: 'Install from GitHub', icon: '⬇️' },
+    { name: 'python', desc: 'Python code', icon: '🐍' },
+    { name: 'node', desc: 'Node.js code', icon: '🟢' },
+    { name: 'bash', desc: 'Shell commands', icon: '💻' },
   ];
 
   return (
@@ -79,17 +81,20 @@ export const BrowserAgent = () => {
             </div>
           </div>
           <div className="flex flex-wrap gap-4 text-xs text-slate-500 font-mono">
-            <span className="flex items-center gap-1">
-              <Lock className="w-3 h-3" /> 100% Local
+            <span className="flex items-center gap-1 text-green-400">
+              <Wifi className="w-3 h-3" /> INTERNET: ON
+            </span>
+            <span className="flex items-center gap-1 text-purple-400">
+              <Github className="w-3 h-3" /> GITHUB: ENABLED
             </span>
             <span className="flex items-center gap-1">
-              <Terminal className="w-3 h-3" /> Kali Tools
+              <TerminalIcon className="w-3 h-3" /> CLI: ACTIVE
             </span>
             <span className="flex items-center gap-1">
-              <Trash2 className="w-3 h-3" /> Session Only
+              <Lock className="w-3 h-3" /> 100% Local AI
             </span>
             <span className="flex items-center gap-1">
-              <Brain className="w-3 h-3" /> WebGPU Powered
+              <Trash2 className="w-3 h-3" /> SESSION ONLY
             </span>
           </div>
         </div>
@@ -124,15 +129,38 @@ export const BrowserAgent = () => {
           </Alert>
         )}
 
-        {/* Privacy Warning */}
+        {/* Internet Status */}
         {status === 'ready' && (
-          <Alert className="bg-amber-950/30 border-amber-500/30 text-amber-200">
-            <Lock className="w-4 h-4" />
-            <AlertDescription className="font-mono text-xs">
-              ⚠️ SECURITY MODE: All data is stored in memory only. Closing this tab will DESTROY all session data, chat history, and uploaded files. This is a feature, not a bug.
-            </AlertDescription>
-          </Alert>
+          <>
+            <Alert className="bg-green-950/30 border-green-500/30 text-green-200">
+              <Wifi className="w-4 h-4" />
+              <AlertDescription className="font-mono text-xs">
+                🌐 INTERNET MODE ACTIVE - Agent has full web access, can download from GitHub, query APIs, and execute remote scripts. All activity is logged in session memory only.
+              </AlertDescription>
+            </Alert>
+            <Alert className="bg-amber-950/30 border-amber-500/30 text-amber-200">
+              <Lock className="w-4 h-4" />
+              <AlertDescription className="font-mono text-xs">
+                ⚠️ SECURITY MODE: All data is stored in memory only. Closing this tab will DESTROY all session data, chat history, and downloaded files. This is a feature, not a bug.
+              </AlertDescription>
+            </Alert>
+          </>
         )}
+
+        {/* Terminal */}
+        <Terminal 
+          onExecute={async (tool, params) => {
+            if (tool === 'get_stats') {
+              return sessionInfo || { status: 'No session data' };
+            }
+            if (tool === 'clear_session') {
+              clearHistory();
+              return { cleared: true };
+            }
+            return executeTool(tool, params);
+          }}
+          isReady={isReady}
+        />
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -245,16 +273,13 @@ export const BrowserAgent = () => {
                 <FileText className="w-4 h-4" /> Capabilities
               </h3>
               <ul className="space-y-1 text-xs font-mono text-slate-300">
-                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Natural Language Chat</li>
-                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Local File Access*</li>
-                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Vector Search (RAG)</li>
-                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Code Execution (Sandbox)</li>
-                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Chat History (Session)</li>
-                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 13+ Kali Linux Tools</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Full Internet Access</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> GitHub Tool Installer</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Python/Node/Bash CLI</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Dynamic Script Loading</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 20+ Security Tools</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> API Query & Fetch</li>
               </ul>
-              <p className="text-[10px] text-slate-500 mt-3 italic">
-                * File System Access API required
-              </p>
             </Card>
 
             {/* Privacy Card */}

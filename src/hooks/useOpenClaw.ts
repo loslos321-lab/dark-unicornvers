@@ -207,16 +207,24 @@ export const useOpenClaw = () => {
     setSessionInfo(null);
   }, []);
 
-  const executeTool = useCallback(async (tool: string, params: any) => {
+  const executeTool = useCallback(async (tool: string, params?: any) => {
     if (!agentRef.current || status !== 'ready') {
       return { error: 'Agent not ready' };
     }
     try {
-      return await agentRef.current.executeTool({ tool, params });
+      // Handle special internal commands
+      if (tool === 'get_stats') {
+        return vectorStoreRef.current?.getStats() || { error: 'No stats' };
+      }
+      if (tool === 'clear_session') {
+        await clearHistory();
+        return { cleared: true };
+      }
+      return await agentRef.current.executeTool({ tool, params: params || {} });
     } catch (err: any) {
       return { error: err.message };
     }
-  }, [status]);
+  }, [status, clearHistory]);
 
   // Update session info periodically
   useEffect(() => {
