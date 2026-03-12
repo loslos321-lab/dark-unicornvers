@@ -23,6 +23,7 @@ import CryptoSpeedrun from "./components/tools/CryptoSpeedrun";
 import SocialEngineeringDefense from "./components/tools/SocialEngineeringDefense";
 import StreamPlayer from "@/components/StreamPlayer";
 import PhysicsSandbox from "@/components/tools/PhysicsSandbox";
+import HashLab from "@/components/tools/HashLab";
 import BrowserAgent from "@/components/BrowserAgent";
 import { SecurityEducationToolkit } from "@/components/SecurityEducationToolkit";
 
@@ -68,6 +69,7 @@ const App = () => (
             <Route path="/tools/crypto-speedrun" element={<CryptoSpeedrun />} />
             <Route path="/tools/social-engineering-quiz" element={<SocialEngineeringDefense />} />
             <Route path="/tools/physics-sandbox" element={<PhysicsSandbox />} />
+            <Route path="/tools/hash-lab" element={<HashLab />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -99,6 +99,15 @@ const categories = [
         badge: "ESSENTIAL",
       },
       {
+        key: "hash-lab",
+        title: "Hash Lab",
+        description: "Identify hash types, crack with rainbow tables, and brute force simulator.",
+        icon: Zap,
+        path: "/tools/hash-lab",
+        ready: true,
+        badge: "CRACKING",
+      },
+      {
         key: "entropy",
         title: "Entropy Analyzer",
         description: "Calculate password strength in bits of entropy.",
