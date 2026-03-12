@@ -52,11 +52,11 @@ export const useOpenClaw = () => {
             { type: 'module' }
           );
 
-          // Setup timeout for worker readiness (3 min for first model download)
+          // Setup timeout for worker readiness (5 min for first model download)
           const initTimeout = setTimeout(() => {
             worker.terminate();
             reject(new Error('Worker initialization timeout'));
-          }, 180000);
+          }, 300000);
 
           worker.onerror = (event) => {
             clearTimeout(initTimeout);
@@ -76,7 +76,7 @@ export const useOpenClaw = () => {
           Promise.race([
             wrappedAgent.initialize(onProgress),
             new Promise((_, rej) => 
-              setTimeout(() => rej(new Error('Agent init timeout')), 8000)
+              setTimeout(() => rej(new Error('Agent init timeout')), 300000)
             )
           ])
             .then(() => {
