@@ -1,4 +1,6 @@
 import { Shield, Lock, Wrench, ArrowRight, Sparkles, Key, FileLock, FileText, QrCode, Gauge, Search, Split, Clipboard, Trophy, BrainCircuit, Target, Atom, Brain, BookOpen } from "lucide-react";
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,14 +27,14 @@ const tools = [
     premium: false,
   },
   {
-  key: "physics-sandbox",
-  title: "Physics Sandbox",
-  description: "Viral physics simulator: Escaped balls spawn 2 more. Click to interact!",
-  icon: Atom,
-  path: "/tools/physics-sandbox",
-  ready: false,
- },
-   {
+    key: "physics-sandbox",
+    title: "Physics Sandbox",
+    description: "Viral physics simulator: Escaped balls spawn 2 more. Click to interact!",
+    icon: Atom,
+    path: "/tools/physics-sandbox",
+    ready: false,
+  },
+  {
     key: "phishing-detective",
     title: "Phishing Detective",
     description: "Interactive game: Spot the fake emails, websites and social engineering attempts.",
@@ -130,60 +132,7 @@ const tools = [
   },
 ];
 
-export default function ToolsHub() {
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="border-b border-border px-6 py-5 flex items-center gap-3">
-        <Shield className="w-6 h-6 text-primary" />
-        <h1 className="text-lg font-bold font-mono text-foreground text-glow tracking-wide">
-          SECURITY TOOLKIT
-        </h1>
-      </header>
-
-      {/* Hero */}
-      <section className="px-6 pt-12 pb-6 max-w-3xl">
-        <p className="text-muted-foreground font-mono text-sm leading-relaxed">
-          A growing collection of privacy-first, client-side security tools.
-          <br />
-          Everything runs in your browser — nothing leaves your device unencrypted.
-        </p>
-      </section>
-
-      {/* Tools grid */}
-      <main className="flex-1 px-6 pb-12">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl">
-          {tools.map((tool) => (
-            <ToolCard key={tool.key} tool={tool} />
-          ))}
-        </div>
-
-        {/* Premium CTA */}
-        <div className="mt-8 max-w-5xl rounded-lg border border-primary/30 bg-card p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <h3 className="font-mono font-semibold text-foreground text-sm">Unlock Premium Tools</h3>
-            </div>
-            <p className="text-muted-foreground text-xs font-mono">
-              One-time payment of $0.99 — get access to all current and future premium tools.
-            </p>
-          </div>
-          <PurchaseButton />
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border px-6 py-4">
-        <p className="text-muted-foreground font-mono text-[11px]">
-          All tools run client-side. Your data never leaves your browser unencrypted.
-        </p>
-      </footer>
-    </div>
-  );
-}
-
-function PurchaseButton() {
+function PurchaseButton({ lang }: { lang: string }) {
   const [loading, setLoading] = useState(false);
 
   const handlePurchase = async () => {
@@ -204,12 +153,12 @@ function PurchaseButton() {
 
   return (
     <Button disabled={true} className="font-mono shrink-0 opacity-50">
-      Coming Soon
+      {lang === 'de' ? 'Demnächst' : 'Coming Soon'}
     </Button>
   );
 }
 
-function ToolCard({ tool }: { tool: (typeof tools)[number] }) {
+function ToolCard({ tool, lang }: { tool: (typeof tools)[number]; lang: string }) {
   const content = (
     <div
       className={`group relative rounded-lg border border-border bg-card p-6 transition-all duration-200 h-full flex flex-col ${
@@ -233,13 +182,13 @@ function ToolCard({ tool }: { tool: (typeof tools)[number] }) {
 
       {tool.ready && (
         <div className="mt-4 flex items-center gap-1 text-primary text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">
-          Open <ArrowRight className="w-3 h-3" />
+          {lang === 'de' ? 'Öffnen' : 'Open'} <ArrowRight className="w-3 h-3" />
         </div>
       )}
 
       {!tool.ready && (
         <div className="mt-4 text-muted-foreground text-[10px] font-mono uppercase tracking-widest">
-          Coming soon
+          {lang === 'de' ? 'In Entwicklung' : 'In Development'}
         </div>
       )}
     </div>
@@ -248,8 +197,75 @@ function ToolCard({ tool }: { tool: (typeof tools)[number] }) {
   if (!tool.ready) return content;
 
   return (
-    <Link to={tool.path} className="no-underline">
+    <Link to={tool.path} className="block">
       {content}
     </Link>
+  );
+}
+
+export default function ToolsHub() {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language;
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="border-b border-border px-6 py-5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Shield className="w-6 h-6 text-primary" />
+          <h1 className="text-lg font-bold font-mono text-foreground text-glow tracking-wide">
+            {t('tools.title').toUpperCase()}
+          </h1>
+        </div>
+        <LanguageSwitcher />
+      </header>
+
+      {/* Hero */}
+      <section className="px-6 pt-12 pb-6 max-w-3xl">
+        <p className="text-muted-foreground font-mono text-sm leading-relaxed">
+          {t('tools.subtitle')}
+          <br />
+          {currentLang === 'de' 
+            ? 'Alles läuft in deinem Browser — nichts verlässt dein Gerät unverschlüsselt.'
+            : 'Everything runs in your browser — nothing leaves your device unencrypted.'}
+        </p>
+      </section>
+
+      {/* Tools grid */}
+      <main className="flex-1 px-6 pb-12">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl">
+          {tools.map((tool) => (
+            <ToolCard key={tool.key} tool={tool} lang={currentLang} />
+          ))}
+        </div>
+
+        {/* Premium CTA */}
+        <div className="mt-8 max-w-5xl rounded-lg border border-primary/30 bg-card p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <h3 className="font-mono font-semibold text-foreground text-sm">
+                {currentLang === 'de' ? 'Premium Tools freischalten' : 'Unlock Premium Tools'}
+              </h3>
+            </div>
+            <p className="text-muted-foreground text-xs font-mono">
+              {currentLang === 'de' 
+                ? 'Einmalige Zahlung von $0.99 — Zugang zu allen aktuellen und zukünftigen Premium Tools.'
+                : 'One-time payment of $0.99 — get access to all current and future premium tools.'}
+            </p>
+          </div>
+          <PurchaseButton lang={currentLang} />
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border px-6 py-4">
+        <p className="text-muted-foreground font-mono text-[11px]">
+          {currentLang === 'de'
+            ? 'Alle Tools laufen client-seitig. Deine Daten verlassen nie unverschlüsselt deinen Browser.'
+            : 'All tools run client-side. Your data never leaves your browser unencrypted.'}
+        </p>
+      </footer>
+    </div>
   );
 }
