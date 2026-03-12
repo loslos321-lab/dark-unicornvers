@@ -66,7 +66,7 @@ export const useOpenClaw = () => {
           };
 
           // Wrap worker with Comlink
-          const wrappedAgent = Comlink.wrap(worker);
+          const wrappedAgent = Comlink.wrap(worker) as any;
           
           // Initialize agent with progress callback
           const onProgress = Comlink.proxy((progress: number) => {
