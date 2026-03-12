@@ -1,4 +1,4 @@
-import { Shield, Lock, Wrench, ArrowRight, Sparkles, Key, FileLock, FileText, QrCode, Gauge, Search, Split, Clipboard, Trophy, BrainCircuit, Target, Atom, Brain } from "lucide-react";
+import { Shield, Lock, Wrench, ArrowRight, Sparkles, Key, FileLock, FileText, QrCode, Gauge, Search, Split, Clipboard, Trophy, BrainCircuit, Target, Atom, Brain, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +6,15 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 const tools = [
+  {
+    key: "security-education",
+    title: "Security Education",
+    description: "Learn to protect yourself from Discord token grabbers, phishing attacks, and social engineering.",
+    icon: BookOpen,
+    path: "/security-education",
+    ready: true,
+    premium: false,
+  },
   {
     key: "browser-agent",
     title: "Browser Agent",
