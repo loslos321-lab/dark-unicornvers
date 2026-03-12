@@ -14,6 +14,7 @@ export const useOpenClaw = () => {
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
   const [sessionInfo, setSessionInfo] = useState<any>(null);
+  const [agreementAccepted, setAgreementAccepted] = useState(false);
 
   const initializeAgent = useCallback(async () => {
     try {
@@ -123,9 +124,22 @@ export const useOpenClaw = () => {
     };
   }, [initializeAgent]);
 
+  const acceptAgreement = useCallback(() => {
+    if (agentRef.current) {
+      agentRef.current.acceptEthicalAgreement?.();
+      setAgreementAccepted(true);
+      console.log('[OpenClaw] Ethical agreement accepted');
+    }
+  }, []);
+
   const sendMessage = useCallback(async (message: string) => {
     if (!agentRef.current || status === 'loading') {
       setError(status === 'loading' ? 'Agent still initializing' : 'Agent not ready');
+      return;
+    }
+    
+    if (!agreementAccepted) {
+      setError('You must accept the ethical hacking agreement first');
       return;
     }
 
@@ -251,6 +265,7 @@ export const useOpenClaw = () => {
     clearHistory,
     executeTool,
     sessionInfo,
+    acceptAgreement,
     isReady: status === 'ready' || status === 'thinking'
   };
 };

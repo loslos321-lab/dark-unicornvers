@@ -3,10 +3,12 @@ import { useOpenClaw } from '@/hooks/useOpenClaw';
 import { NeuralSandbox } from './NeuralSandbox';
 import { AgentChat } from './AgentChat';
 import { Terminal } from './Terminal';
+import { EthicalHackingAgreement } from './EthicalHackingAgreement';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Brain, CheckCircle, Terminal as TerminalIcon, Shield, Trash2, FileText, Lock, Wifi, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 export const BrowserAgent = () => {
   const {
@@ -67,16 +69,29 @@ export const BrowserAgent = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-black to-slate-950 p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         
-        {/* Header */}
+        {/* Ethical Agreement Modal */}
+      {showAgreement && (
+        <EthicalHackingAgreement 
+          onAccept={() => {
+            setShowAgreement(false);
+            acceptAgreement();
+          }}
+          onDecline={() => {
+            window.location.href = 'about:blank';
+          }}
+        />
+      )}
+
+      {/* Header */}
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <Shield className="w-10 h-10 text-red-500" />
             <div>
               <h1 className="text-3xl font-bold font-mono text-red-500">
-                🦄 Dark Unicorn
+                🦄 Dark Unicorn v3.0
               </h1>
               <p className="text-red-400 text-sm font-mono">
-                Cybersecurity Agent // Local AI // Zero Trust
+                Real Pentesting Tools // Ethical Hacking Only
               </p>
             </div>
           </div>
