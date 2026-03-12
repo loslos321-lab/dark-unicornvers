@@ -13,6 +13,7 @@ export const useOpenClaw = () => {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
+  const [sessionInfo, setSessionInfo] = useState<any>(null);
 
   const initializeAgent = useCallback(async () => {
     try {
@@ -195,7 +196,42 @@ export const useOpenClaw = () => {
     if (vectorStoreRef.current) {
       await vectorStoreRef.current.clearAll();
     }
+    // Also clear agent session
+    if (agentRef.current) {
+      try {
+        await agentRef.current.clearSession?.();
+      } catch (e) {
+        // Method might not exist
+      }
+    }
+    setSessionInfo(null);
   }, []);
+
+  const executeTool = useCallback(async (tool: string, params: any) => {
+    if (!agentRef.current || status !== 'ready') {
+      return { error: 'Agent not ready' };
+    }
+    try {
+      return await agentRef.current.executeTool({ tool, params });
+    } catch (err: any) {
+      return { error: err.message };
+    }
+  }, [status]);
+
+  // Update session info periodically
+  useEffect(() => {
+    if (status !== 'ready') return;
+    
+    const updateStats = async () => {
+      if (vectorStoreRef.current) {
+        setSessionInfo(vectorStoreRef.current.getStats());
+      }
+    };
+    
+    updateStats();
+    const interval = setInterval(updateStats, 5000);
+    return () => clearInterval(interval);
+  }, [status]);
 
   return {
     status,
@@ -205,6 +241,8 @@ export const useOpenClaw = () => {
     error,
     sendMessage,
     clearHistory,
+    executeTool,
+    sessionInfo,
     isReady: status === 'ready' || status === 'thinking'
   };
 };

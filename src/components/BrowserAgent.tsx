@@ -4,7 +4,8 @@ import { NeuralSandbox } from './NeuralSandbox';
 import { AgentChat } from './AgentChat';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Brain, CheckCircle } from 'lucide-react';
+import { AlertCircle, Brain, CheckCircle, Terminal, Shield, Trash2, FileText, Lock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const BrowserAgent = () => {
   const {
@@ -15,58 +16,93 @@ export const BrowserAgent = () => {
     error,
     sendMessage,
     clearHistory,
-    isReady
+    isReady,
+    sessionInfo,
+    executeTool
   } = useOpenClaw();
 
   const [initMessage, setInitMessage] = useState<string>('');
+  const [showTools, setShowTools] = useState(false);
 
   useEffect(() => {
     switch (status) {
       case 'loading':
         if (downloadProgress > 0 && downloadProgress < 100) {
-          setInitMessage(`Downloading AI model... ${Math.round(downloadProgress)}% (first time only, ~600MB)`);
+          setInitMessage(`Loading neural core... ${Math.round(downloadProgress)}% (first time only)`);
         } else {
-          setInitMessage(`Initializing agent... ${Math.round(downloadProgress)}%`);
+          setInitMessage(`Initializing Dark Unicorn... ${Math.round(downloadProgress)}%`);
         }
         break;
       case 'ready':
-        setInitMessage('Agent online - ready to help!');
-        setTimeout(() => setInitMessage(''), 3000);
+        setInitMessage('🦄 Dark Unicorn Agent ONLINE - Ready for operations');
+        setTimeout(() => setInitMessage(''), 5000);
         break;
       case 'idle':
-        setInitMessage('Failed to initialize. Refresh the page.');
+        setInitMessage('❌ Failed to initialize. Refresh the page.');
         break;
       default:
         setInitMessage('');
     }
   }, [status, downloadProgress]);
 
+  const tools = [
+    { name: 'nmap', desc: 'Port scanner', icon: '🌐' },
+    { name: 'dirb', desc: 'Directory brute', icon: '📁' },
+    { name: 'sqlmap', desc: 'SQL injection', icon: '💉' },
+    { name: 'hashcat', desc: 'Hash cracker', icon: '🔐' },
+    { name: 'john', desc: 'Password cracker', icon: '🔑' },
+    { name: 'whois', desc: 'Domain lookup', icon: '📋' },
+    { name: 'dig', desc: 'DNS enum', icon: '🔍' },
+    { name: 'curl', desc: 'HTTP requests', icon: '🌊' },
+    { name: 'base64', desc: 'Encoder', icon: '🔤' },
+    { name: 'hash-md5', desc: 'MD5 hash', icon: '#️⃣' },
+    { name: 'hash-sha256', desc: 'SHA256 hash', icon: '#️⃣' },
+    { name: 'exploitdb', desc: 'Exploit search', icon: '💣' },
+    { name: 'cve-lookup', desc: 'CVE search', icon: '📊' },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-black to-slate-950 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Header */}
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <Brain className="w-8 h-8 text-cyan-400" />
-            <h1 className="text-3xl font-bold font-mono text-cyan-400">
-              OpenClaw Browser Agent
-            </h1>
+            <Shield className="w-10 h-10 text-red-500" />
+            <div>
+              <h1 className="text-3xl font-bold font-mono text-red-500">
+                🦄 Dark Unicorn
+              </h1>
+              <p className="text-red-400 text-sm font-mono">
+                Cybersecurity Agent // Local AI // Zero Trust
+              </p>
+            </div>
           </div>
-          <p className="text-slate-400 text-sm font-mono">
-            100% Local • 100% Private • 100% Hardware-Accelerated
-          </p>
+          <div className="flex flex-wrap gap-4 text-xs text-slate-500 font-mono">
+            <span className="flex items-center gap-1">
+              <Lock className="w-3 h-3" /> 100% Local
+            </span>
+            <span className="flex items-center gap-1">
+              <Terminal className="w-3 h-3" /> Kali Tools
+            </span>
+            <span className="flex items-center gap-1">
+              <Trash2 className="w-3 h-3" /> Session Only
+            </span>
+            <span className="flex items-center gap-1">
+              <Brain className="w-3 h-3" /> WebGPU Powered
+            </span>
+          </div>
         </div>
 
         {/* Status Alert */}
         {initMessage && (
-          <Alert className="bg-cyan-950 bg-opacity-50 border-cyan-500 border-opacity-50 text-cyan-100">
+          <Alert className="bg-red-950/50 border-red-500/50 text-red-100">
             <div className="flex items-center gap-2">
               {status === 'loading' && (
-                <div className="w-4 h-4 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
+                <div className="w-4 h-4 rounded-full border-2 border-red-400 border-t-transparent animate-spin" />
               )}
               {status === 'ready' && (
-                <CheckCircle className="w-4 h-4" />
+                <CheckCircle className="w-4 h-4 text-green-400" />
               )}
               {status === 'idle' && (
                 <AlertCircle className="w-4 h-4" />
@@ -80,10 +116,20 @@ export const BrowserAgent = () => {
 
         {/* Error Alert */}
         {error && (
-          <Alert className="bg-red-950 bg-opacity-50 border-red-500 border-opacity-50 text-red-100">
+          <Alert className="bg-red-950/50 border-red-500/50 text-red-100">
             <AlertCircle className="w-4 h-4" />
             <AlertDescription className="font-mono text-sm">
               Error: {error}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Privacy Warning */}
+        {status === 'ready' && (
+          <Alert className="bg-amber-950/30 border-amber-500/30 text-amber-200">
+            <Lock className="w-4 h-4" />
+            <AlertDescription className="font-mono text-xs">
+              ⚠️ SECURITY MODE: All data is stored in memory only. Closing this tab will DESTROY all session data, chat history, and uploaded files. This is a feature, not a bug.
             </AlertDescription>
           </Alert>
         )}
@@ -93,7 +139,7 @@ export const BrowserAgent = () => {
           
           {/* Main Chat Area */}
           <div className="lg:col-span-2 space-y-4">
-            {/* Neural Sandbox Visualization */}
+            {/* Neural Activity Monitor */}
             <NeuralSandbox 
               thoughts={thoughts} 
               isThinking={status === 'thinking'}
@@ -106,6 +152,7 @@ export const BrowserAgent = () => {
               error={error}
               onSendMessage={sendMessage}
               onClear={clearHistory}
+              isReady={isReady}
             />
           </div>
 
@@ -113,84 +160,120 @@ export const BrowserAgent = () => {
           <div className="space-y-4">
             
             {/* Status Card */}
-            <Card className="bg-slate-900 bg-opacity-50 border-cyan-500 border-opacity-30 p-4">
-              <h3 className="font-mono text-sm font-semibold text-cyan-400 mb-3">
-                System Status
+            <Card className="bg-slate-900/50 border-red-500/30 p-4">
+              <h3 className="font-mono text-sm font-semibold text-red-400 mb-3 flex items-center gap-2">
+                <Terminal className="w-4 h-4" /> System Status
               </h3>
               <div className="space-y-2 text-xs font-mono text-slate-300">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Status:</span>
                   <span className={`${
-                    isReady ? 'text-lime-400' : 'text-yellow-400'
+                    isReady ? 'text-green-400' : 'text-yellow-400'
                   } font-semibold`}>
                     {status.toUpperCase()}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Messages:</span>
-                  <span className="text-cyan-400">{messages.length}</span>
+                  <span className="text-red-400">{messages.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Hardware:</span>
-                  <span className="text-cyan-400">Local</span>
+                  <span className="text-slate-500">Storage:</span>
+                  <span className="text-amber-400">VOLATILE</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Mode:</span>
+                  <span className="text-red-400">PENTEST</span>
+                </div>
+                {sessionInfo && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Memory:</span>
+                      <span className="text-cyan-400">{sessionInfo.memory_entries} entries</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Vectors:</span>
+                      <span className="text-cyan-400">{sessionInfo.vector_docs} docs</span>
+                    </div>
+                  </>
+                )}
                 <div className="pt-2 border-t border-slate-700">
                   <div className="text-slate-400 text-xs">
-                    ✓ WebGPU Ready
-                    <br />
-                    ✓ IndexedDB Active
-                    <br />
-                    ✓ Zero Backend
+                    ✓ WebGPU Ready<br/>
+                    ✓ Neural Core Active<br/>
+                    ✓ Zero Persistence
                   </div>
                 </div>
               </div>
             </Card>
 
-            {/* Info Card */}
-            <Card className="bg-slate-900 bg-opacity-50 border-lime-500 border-opacity-20 p-4">
-              <h3 className="font-mono text-sm font-semibold text-lime-400 mb-3">
-                Capabilities
+            {/* Tools Card */}
+            <Card className="bg-slate-900/50 border-red-500/30 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-mono text-sm font-semibold text-red-400 flex items-center gap-2">
+                  <Terminal className="w-4 h-4" /> Kali Tools
+                </h3>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowTools(!showTools)}
+                  className="text-xs text-slate-400 hover:text-red-400"
+                >
+                  {showTools ? 'Hide' : 'Show All'}
+                </Button>
+              </div>
+              <div className={`grid grid-cols-2 gap-2 text-xs ${showTools ? '' : 'max-h-32 overflow-hidden'}`}>
+                {tools.map((tool) => (
+                  <div 
+                    key={tool.name}
+                    className="flex items-center gap-2 p-2 rounded bg-slate-800/50 hover:bg-slate-800 cursor-pointer transition-colors"
+                    onClick={() => sendMessage(`Run ${tool.name} ${tool.name === 'nmap' ? '-sS target.com' : tool.name === 'dirb' ? 'http://target.com' : ''}`)}
+                  >
+                    <span>{tool.icon}</span>
+                    <div>
+                      <div className="font-mono text-cyan-400">{tool.name}</div>
+                      <div className="text-slate-500 text-[10px]">{tool.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Capabilities Card */}
+            <Card className="bg-slate-900/50 border-amber-500/20 p-4">
+              <h3 className="font-mono text-sm font-semibold text-amber-400 mb-3 flex items-center gap-2">
+                <FileText className="w-4 h-4" /> Capabilities
               </h3>
-              <ul className="space-y-2 text-xs font-mono text-slate-300">
-                <li>✓ Natural Language Chat</li>
-                <li>✓ Local File Access*</li>
-                <li>✓ Vector Search (RAG)</li>
-                <li>✓ Code Execution</li>
-                <li>✓ Chat History</li>
+              <ul className="space-y-1 text-xs font-mono text-slate-300">
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Natural Language Chat</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Local File Access*</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Vector Search (RAG)</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Code Execution (Sandbox)</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Chat History (Session)</li>
+                <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 13+ Kali Linux Tools</li>
               </ul>
-              <p className="text-xs text-slate-500 mt-3 italic">
-                *Requires File System Access API support
+              <p className="text-[10px] text-slate-500 mt-3 italic">
+                * File System Access API required
               </p>
             </Card>
 
             {/* Privacy Card */}
-            <Card className="bg-slate-900 bg-opacity-50 border-purple-500 border-opacity-20 p-4">
-              <h3 className="font-mono text-sm font-semibold text-purple-400 mb-3">
-                Privacy Guarantee
+            <Card className="bg-slate-900/50 border-green-500/20 p-4">
+              <h3 className="font-mono text-sm font-semibold text-green-400 mb-3 flex items-center gap-2">
+                <Lock className="w-4 h-4" /> Privacy Guarantee
               </h3>
-              <p className="text-xs text-slate-300 font-mono">
-                All processing happens in your browser. No data is sent to servers. Your privacy is absolute.
+              <p className="text-xs text-slate-300 font-mono leading-relaxed">
+                <span className="text-red-400">ZERO TRUST ARCHITECTURE</span><br/><br/>
+                • No data leaves your browser<br/>
+                • No cloud API calls<br/>
+                • No persistent storage<br/>
+                • Session destroyed on close<br/>
+                • Perfect forward secrecy
               </p>
             </Card>
 
           </div>
         </div>
-
-        {/* Debug Info */}
-        {status === 'thinking' && (
-          <Card className="bg-slate-900 bg-opacity-50 border-cyan-500 border-opacity-30 p-4">
-            <h3 className="font-mono text-xs font-semibold text-cyan-400 mb-2">
-              Thought Stream
-            </h3>
-            <div className="font-mono text-xs text-cyan-200 space-y-1 max-h-24 overflow-y-auto">
-              {thoughts.map((thought, idx) => (
-                <div key={idx} className="text-slate-400">
-                  {thought}
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
 
       </div>
     </div>

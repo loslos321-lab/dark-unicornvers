@@ -1,47 +1,24 @@
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
 import type { VectorDocument } from '../types/agent';
 
-interface VectorDB extends DBSchema {
-  documents: {
-    key: string;
-    value: VectorDocument;
-    indexes: { 'by-timestamp': number };
-  };
-  chats: {
-    key: string;
-    value: {
-      id: string;
-      messages: Array<{ role: string; content: string }>;
-      timestamp: number;
-    };
-  };
-}
-
+/**
+ * In-Memory Vector Store
+ * All data is lost when the session ends (browser/tab closed)
+ * This ensures maximum privacy - nothing persists on disk
+ */
 export class LocalVectorStore {
-  private db: IDBPDatabase<VectorDB> | null = null;
-  private dbName = 'openclaw-db';
+  private documents: VectorDocument[] = [];
+  private chats: Array<{id: string, messages: any[], timestamp: number}> = [];
+  private initialized = false;
 
   async init() {
-    this.db = await openDB<VectorDB>(this.dbName, 1, {
-      upgrade(db) {
-        // Documents store
-        if (!db.objectStoreNames.contains('documents')) {
-          const docStore = db.createObjectStore('documents', { keyPath: 'id' });
-          docStore.createIndex('by-timestamp', 'timestamp');
-        }
-        
-        // Chats store
-        if (!db.objectStoreNames.contains('chats')) {
-          db.createObjectStore('chats', { keyPath: 'id' });
-        }
-      },
-    });
+    // No persistent storage - everything stays in memory
+    this.initialized = true;
+    console.log('[VectorStore] In-memory mode initialized. Data will be destroyed on tab close.');
   }
 
   async addDocument(content: string, metadata: any = {}) {
-    if (!this.db) throw new Error('DB not initialized');
+    if (!this.initialized) throw new Error('VectorStore not initialized');
     
-    // Simple hash-based embedding (no ML needed)
     const embedding = this.simpleEmbed(content);
     
     const doc: VectorDocument = {
@@ -52,17 +29,20 @@ export class LocalVectorStore {
       timestamp: Date.now(),
     };
 
-    await this.db.add('documents', doc);
+    this.documents.push(doc);
     return doc.id;
   }
 
   async search(query: string, topK: number = 5) {
-    if (!this.db) throw new Error('DB not initialized');
+    if (!this.initialized) throw new Error('VectorStore not initialized');
+    
+    if (this.documents.length === 0) {
+      return [];
+    }
     
     const queryEmbed = this.simpleEmbed(query);
-    const allDocs = await this.db.getAll('documents');
     
-    const scored = allDocs.map(doc => ({
+    const scored = this.documents.map(doc => ({
       ...doc,
       score: this.cosineSimilarity(queryEmbed, doc.embedding)
     }));
@@ -72,32 +52,47 @@ export class LocalVectorStore {
   }
 
   async saveChatSession(sessionId: string, messages: any[]) {
-    if (!this.db) throw new Error('DB not initialized');
+    if (!this.initialized) throw new Error('VectorStore not initialized');
     
-    await this.db.put('chats', {
-      id: sessionId,
-      messages,
-      timestamp: Date.now(),
-    });
+    const existingIndex = this.chats.findIndex(c => c.id === sessionId);
+    if (existingIndex >= 0) {
+      this.chats[existingIndex] = {
+        id: sessionId,
+        messages,
+        timestamp: Date.now(),
+      };
+    } else {
+      this.chats.push({
+        id: sessionId,
+        messages,
+        timestamp: Date.now(),
+      });
+    }
   }
 
   async getChatSession(sessionId: string) {
-    if (!this.db) throw new Error('DB not initialized');
-    
-    return await this.db.get('chats', sessionId);
+    if (!this.initialized) throw new Error('VectorStore not initialized');
+    return this.chats.find(c => c.id === sessionId) || null;
   }
 
   async getAllChats() {
-    if (!this.db) throw new Error('DB not initialized');
-    
-    return await this.db.getAll('chats');
+    if (!this.initialized) throw new Error('VectorStore not initialized');
+    return this.chats;
   }
 
   async clearAll() {
-    if (!this.db) throw new Error('DB not initialized');
-    
-    await this.db.clear('documents');
-    await this.db.clear('chats');
+    this.documents = [];
+    this.chats = [];
+    console.log('[VectorStore] All in-memory data cleared');
+  }
+
+  getStats() {
+    return {
+      documents: this.documents.length,
+      chats: this.chats.length,
+      mode: 'IN-MEMORY (volatile)',
+      warning: 'Data will be lost when you close this tab'
+    };
   }
 
   private simpleEmbed(text: string): number[] {

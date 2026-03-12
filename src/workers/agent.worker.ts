@@ -68,6 +68,14 @@ const api = {
       initialized: isInitialized,
       error: initializationError
     };
+  },
+
+  clearSession() {
+    if (!isInitialized) {
+      throw new Error('Agent not initialized');
+    }
+    agent.clearSession();
+    return { cleared: true };
   }
 };
 

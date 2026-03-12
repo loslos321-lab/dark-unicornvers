@@ -10,6 +10,7 @@ interface AgentChatProps {
   error: string | null;
   onSendMessage: (message: string) => void;
   onClear: () => void;
+  isReady?: boolean;
 }
 
 export const AgentChat = ({
@@ -17,7 +18,8 @@ export const AgentChat = ({
   loading,
   error,
   onSendMessage,
-  onClear
+  onClear,
+  isReady = true
 }: AgentChatProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -109,17 +111,17 @@ export const AgentChat = ({
         <div className="flex gap-2">
           <Input
             ref={inputRef}
-            placeholder="Type your question... (Max 500 chars)"
+            placeholder={isReady ? "Enter command or question... (Max 500 chars)" : "Agent initializing..."}
             onKeyDown={handleKeyDown}
-            disabled={loading}
+            disabled={loading || !isReady}
             maxLength={maxLength}
-            className="bg-slate-800 border-cyan-500 border-opacity-30 text-cyan-100 placeholder:text-slate-500 focus:border-cyan-400 text-sm font-mono"
+            className="bg-slate-800 border-red-500/30 text-red-100 placeholder:text-slate-500 focus:border-red-400 text-sm font-mono"
           />
           <Button
             onClick={handleSend}
             disabled={loading}
             size="sm"
-            className="bg-cyan-600 hover:bg-cyan-500 text-white font-mono"
+            className="bg-red-600 hover:bg-red-500 text-white font-mono"
           >
             <Send className="w-4 h-4" />
           </Button>
