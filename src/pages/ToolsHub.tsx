@@ -12,7 +12,7 @@ const tools = [
     description: "Local AI assistant running 100% in your browser. Chat, search, analyze with zero backend.",
     icon: Brain,
     path: "/browser-agent",
-    ready: true,
+    ready: false,
     premium: false,
   },
   {
