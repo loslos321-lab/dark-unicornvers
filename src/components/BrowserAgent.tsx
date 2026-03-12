@@ -8,7 +8,6 @@ import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Brain, CheckCircle, Terminal as TerminalIcon, Shield, Trash2, FileText, Lock, Wifi, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 
 export const BrowserAgent = () => {
   const {
@@ -21,11 +20,13 @@ export const BrowserAgent = () => {
     clearHistory,
     isReady,
     sessionInfo,
-    executeTool
+    executeTool,
+    acceptAgreement
   } = useOpenClaw();
 
   const [initMessage, setInitMessage] = useState<string>('');
   const [showTools, setShowTools] = useState(false);
+  const [showAgreement, setShowAgreement] = useState(true);
 
   useEffect(() => {
     switch (status) {
