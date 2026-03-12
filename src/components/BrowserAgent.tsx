@@ -73,9 +73,9 @@ export const BrowserAgent = () => {
         {/* Ethical Agreement Modal */}
       {showAgreement && (
         <EthicalHackingAgreement 
-          onAccept={() => {
+          onAccept={async () => {
             setShowAgreement(false);
-            acceptAgreement();
+            await acceptAgreement();
           }}
           onDecline={() => {
             window.location.href = 'about:blank';

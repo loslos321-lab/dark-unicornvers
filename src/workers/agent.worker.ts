@@ -78,12 +78,16 @@ const api = {
     return { cleared: true };
   },
 
-  acceptEthicalAgreement() {
+  async acceptEthicalAgreement() {
     if (!isInitialized) {
       throw new Error('Agent not initialized');
     }
-    agent.acceptEthicalAgreement();
-    return { accepted: true };
+    try {
+      agent.acceptEthicalAgreement();
+      return { accepted: true };
+    } catch (err: any) {
+      throw new Error('Failed to accept agreement: ' + err.message);
+    }
   }
 };
 

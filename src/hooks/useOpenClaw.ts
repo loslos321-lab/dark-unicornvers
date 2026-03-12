@@ -124,11 +124,16 @@ export const useOpenClaw = () => {
     };
   }, [initializeAgent]);
 
-  const acceptAgreement = useCallback(() => {
+  const acceptAgreement = useCallback(async () => {
     if (agentRef.current) {
-      agentRef.current.acceptEthicalAgreement?.();
-      setAgreementAccepted(true);
-      console.log('[OpenClaw] Ethical agreement accepted');
+      try {
+        await agentRef.current.acceptEthicalAgreement?.();
+        setAgreementAccepted(true);
+        console.log('[OpenClaw] Ethical agreement accepted');
+      } catch (err: any) {
+        console.error('[OpenClaw] Failed to accept agreement:', err);
+        setError('Failed to accept agreement: ' + err.message);
+      }
     }
   }, []);
 
