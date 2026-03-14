@@ -1037,6 +1037,98 @@ export default function NeonPhysicsArena() {
   // RENDER
   // ==========================================
   
+  if (showWelcome) {
+    return (
+      <div className="h-screen w-full bg-black flex items-center justify-center font-mono overflow-hidden relative">
+        {/* Animated background */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                width: 6 + Math.random() * 20,
+                height: 6 + Math.random() * 20,
+                background: COLORS.neon[i % COLORS.neon.length],
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                filter: `blur(${Math.random() * 2}px)`,
+              }}
+              animate={{
+                y: [0, -200 - Math.random() * 400],
+                opacity: [0, 1, 0],
+                scale: [0.5, 1.2, 0.3],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 4,
+                repeat: Infinity,
+                delay: Math.random() * 3,
+                ease: "easeOut",
+              }}
+            />
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="relative z-10 text-center max-w-lg mx-4"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="inline-block mb-6"
+          >
+            <Atom className="w-20 h-20 text-cyan-400" />
+          </motion.div>
+          
+          <h1 className="text-5xl sm:text-6xl font-black mb-4 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            NEON PHYSICS
+          </h1>
+          <p className="text-zinc-400 text-lg mb-8">
+            Spawn balls, build obstacles, chase combos. Pure physics chaos.
+          </p>
+
+          <div className="grid grid-cols-2 gap-3 mb-8">
+            {([
+              { id: "sandbox" as GameMode, name: "🎮 Sandbox", desc: "Free play" },
+              { id: "targets" as GameMode, name: "🎯 Targets", desc: "Hit for points" },
+              { id: "survival" as GameMode, name: "⏱️ Survival", desc: "Don't lose balls" },
+              { id: "zen" as GameMode, name: "✨ Zen", desc: "Just relax" },
+            ]).map(mode => (
+              <motion.button
+                key={mode.id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setGameState(s => ({ ...s, mode: mode.id }));
+                  setShowWelcome(false);
+                }}
+                className={cn(
+                  "p-4 rounded-xl border-2 border-zinc-700 hover:border-cyan-400 bg-zinc-900/80 backdrop-blur text-left transition-colors"
+                )}
+              >
+                <div className="font-bold text-white text-sm">{mode.name}</div>
+                <div className="text-xs text-zinc-500">{mode.desc}</div>
+              </motion.button>
+            ))}
+          </div>
+
+          <div className="flex gap-3 justify-center">
+            <Button variant="ghost" onClick={() => navigate("/")} className="text-zinc-500">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back
+            </Button>
+          </div>
+          
+          <div className="mt-6 text-xs text-zinc-600 space-y-1">
+            <p>Click to spawn • Hold to attract • Space to pause • R to reset</p>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen w-full bg-black flex flex-col overflow-hidden font-mono select-none">
       {/* Notifications */}
