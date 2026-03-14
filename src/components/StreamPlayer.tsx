@@ -102,10 +102,13 @@ export default function StreamPlayer() {
     } else {
       setIsLoading(true);
       try {
+        // Set src fresh each time to handle stream reconnection
+        audioRef.current.src = currentStream.url;
+        audioRef.current.load();
         await audioRef.current.play();
         setIsPlaying(true);
       } catch (err) {
-        setError("Click blocked by browser");
+        setError("Playback failed — try another stream");
         setIsPlaying(false);
       } finally {
         setIsLoading(false);
