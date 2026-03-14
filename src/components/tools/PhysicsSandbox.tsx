@@ -224,6 +224,9 @@ export default function NeonPhysicsArena() {
   const lastTimeRef = useRef(0);
   const comboTimerRef = useRef(0);
   
+  // Welcome screen
+  const [showWelcome, setShowWelcome] = useState(true);
+  
   // Game State
   const [gameState, setGameState] = useState<GameState>({
     mode: "sandbox",
