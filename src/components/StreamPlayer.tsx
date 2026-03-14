@@ -50,36 +50,46 @@ export default function StreamPlayer() {
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current.removeAttribute('src');
+      audioRef.current.load();
     }
     
-    audioRef.current = new Audio(currentStream.url);
-    audioRef.current.volume = volume;
-    audioRef.current.crossOrigin = "anonymous"; // Wichtig für CORS
+    const audio = new Audio();
+    audio.volume = isMuted ? 0 : volume;
+    audio.preload = "none";
     
-    audioRef.current.addEventListener('error', () => {
+    audio.addEventListener('error', () => {
       setError("Stream offline or blocked");
       setIsPlaying(false);
       setIsLoading(false);
     });
 
-    audioRef.current.addEventListener('canplay', () => {
+    audio.addEventListener('canplay', () => {
       setError(null);
       setIsLoading(false);
-      if (isPlaying) {
-        audioRef.current?.play().catch(() => {
-          setError("Autoplay blocked");
-          setIsPlaying(false);
-        });
-      }
     });
 
+    audio.addEventListener('playing', () => {
+      setError(null);
+      setIsLoading(false);
+      setIsPlaying(true);
+    });
+
+    audioRef.current = audio;
+
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
     };
   }, [currentStream]);
+
+  // Sync volume/mute
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted]);
 
   const togglePlay = async () => {
     if (!audioRef.current) return;
