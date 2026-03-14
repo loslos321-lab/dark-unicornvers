@@ -43,9 +43,7 @@ const RAINBOW_TABLE: Record<string, string> = {
   '21232f297a57a5a743894a0e4a801fc3': 'admin',
   '202cb962ac59075b964b07152d234b70': '123',
   '098f6bcd4621d373cade4e832627b4f6': 'test',
-  '5f4dcc3b5aa765d61d8327deb882cf99': 'password',
   'e10adc3949ba59abbe56e057f20f883e': '123456',
-  '25d55ad283aa400af464c76d713c07ad': '12345678',
   '7c4a8d09ca3762af61e59520943dc26494f8941b': 'password1', // SHA1
   '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8': 'password', // SHA1
 };
