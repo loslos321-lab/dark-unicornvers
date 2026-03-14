@@ -854,7 +854,7 @@ Always remind users to ensure they have authorization.`;
         setTimeout: () => { throw new Error('setTimeout disabled'); },
         clearTimeout: () => {},
         crypto: {
-          getRandomValues: (arr: Uint8Array) => crypto.getRandomValues(arr),
+          getRandomValues: (arr: Uint8Array) => crypto.getRandomValues(arr as any),
           subtle: undefined // No subtle crypto to prevent key extraction
         }
       };

@@ -218,7 +218,7 @@ const categories = [
         description: "Interactive physics simulation with viral mechanics.",
         icon: Atom,
         path: "/tools/physics-sandbox",
-        ready: false,
+        ready: true,
         badge: "EXPERIMENT",
       },
     ]

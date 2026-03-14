@@ -83,8 +83,9 @@ export default function PasswordGame() {
       id: 5,
       text: "The digits in your password must add up to 25",
       check: (p) => {
-        const digits = p.match(/\d/g) || [];
-        const sum = digits.reduce((acc, d) => acc + parseInt(d), 0);
+        const digits = p.match(/\d/g);
+        if (!digits) return false;
+        const sum = digits.reduce((acc: number, d: string) => acc + parseInt(d), 0);
         return sum === 25;
       },
       icon: <Calculator className="w-4 h-4" />,
