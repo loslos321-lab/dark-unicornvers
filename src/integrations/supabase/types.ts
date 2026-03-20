@@ -76,7 +76,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_rooms: {
+        Row: {
+          id: string
+          name: string
+          created_by: string
+          created_at: string
+          is_active: boolean
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_room_password: {
