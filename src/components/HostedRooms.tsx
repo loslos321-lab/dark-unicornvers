@@ -47,9 +47,9 @@ export default function HostedRooms() {
 
   const fetchRooms = async () => {
     setLoading(true);
-    // Use the public_rooms view that excludes password_hash
-    const { data, error } = await supabase.from("public_rooms")
+    const { data, error } = await (supabase.from("hosted_rooms") as any)
       .select("id, name, created_by, created_at")
+      .eq("is_active", true)
       .order("created_at", { ascending: false });
     setLoading(false);
     if (error) {
