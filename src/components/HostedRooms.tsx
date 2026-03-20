@@ -53,7 +53,8 @@ export default function HostedRooms() {
       .order("created_at", { ascending: false });
     setLoading(false);
     if (error) {
-      toast.error("Failed to load rooms");
+      console.error("Fetch rooms error:", error);
+      toast.error(`Failed to load rooms: ${error.message}`);
       return;
     }
     setRooms((data as Room[]) || []);
@@ -76,8 +77,9 @@ export default function HostedRooms() {
       created_by: username,
     });
     if (error) {
+      console.error("Create room error:", error);
       if (error.code === "23505") toast.error("Room name already taken");
-      else toast.error("Failed to create room");
+      else toast.error(`Failed to create room: ${error.message}`);
       return;
     }
     toast.success(`Room "${roomName}" created`);
