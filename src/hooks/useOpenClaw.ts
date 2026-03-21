@@ -290,6 +290,7 @@ export const useOpenClaw = () => {
     executeTool,
     sessionInfo,
     acceptAgreement,
+    agreementAccepted,
     isReady: status === 'ready' || status === 'thinking'
   };
 };

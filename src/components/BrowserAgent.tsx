@@ -21,8 +21,14 @@ export const BrowserAgent = () => {
     isReady,
     sessionInfo,
     executeTool,
-    acceptAgreement
+    acceptAgreement,
+    agreementAccepted
   } = useOpenClaw();
+
+  // Debug: log agreement state changes
+  useEffect(() => {
+    console.log('[BrowserAgent] agreementAccepted changed:', agreementAccepted);
+  }, [agreementAccepted]);
 
   const [initMessage, setInitMessage] = useState<string>('');
   const [showTools, setShowTools] = useState(false);
@@ -196,7 +202,14 @@ export const BrowserAgent = () => {
               messages={messages}
               loading={status === 'thinking'}
               error={error}
-              onSendMessage={sendMessage}
+              onSendMessage={(msg) => {
+                console.log('[BrowserAgent] onSendMessage called, agreementAccepted:', agreementAccepted);
+                if (!agreementAccepted) {
+                  console.log('[BrowserAgent] Blocking message - agreement not accepted');
+                  return;
+                }
+                sendMessage(msg);
+              }}
               onClear={clearHistory}
               isReady={isReady}
             />
@@ -273,7 +286,14 @@ export const BrowserAgent = () => {
                   <div 
                     key={tool.name}
                     className="flex items-center gap-2 p-2 rounded bg-slate-800/50 hover:bg-slate-800 cursor-pointer transition-colors"
-                    onClick={() => sendMessage(`Run ${tool.name} ${tool.name === 'nmap' ? '-sS target.com' : tool.name === 'dirb' ? 'http://target.com' : ''}`)}
+                    onClick={() => {
+                      console.log('[BrowserAgent] Tool clicked, agreementAccepted:', agreementAccepted);
+                      if (!agreementAccepted) {
+                        console.log('[BrowserAgent] Blocking tool - agreement not accepted');
+                        return;
+                      }
+                      sendMessage(`Run ${tool.name} ${tool.name === 'nmap' ? '-sS target.com' : tool.name === 'dirb' ? 'http://target.com' : ''}`);
+                    }}
                   >
                     <span>{tool.icon}</span>
                     <div>
