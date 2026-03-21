@@ -32,7 +32,7 @@ export const BrowserAgent = () => {
   }, [agreementAccepted]);
 
   const [initMessage, setInitMessage] = useState<string>('');
-  const [showTools, setShowTools] = useState(false);
+  const [showTools, setShowTools] = useState(true);  // Tools always visible
   const [showAgreement, setShowAgreement] = useState(false);  // DISABLED for testing
 
   useEffect(() => {
@@ -58,19 +58,21 @@ export const BrowserAgent = () => {
 
   const tools = [
     { name: 'curl', desc: 'HTTP/HTTPS requests', icon: '🌐' },
-    { name: 'wget', desc: 'Download files', icon: '⬇️' },
-    { name: 'nmap', desc: 'Port scanner', icon: '🔍' },
-    { name: 'dirb', desc: 'Directory brute', icon: '📁' },
-    { name: 'sqlmap', desc: 'SQL injection', icon: '💉' },
-    { name: 'hashcat', desc: 'Hash cracker', icon: '🔐' },
-    { name: 'john', desc: 'Password cracker', icon: '🔑' },
-    { name: 'whois', desc: 'Domain lookup', icon: '📋' },
-    { name: 'dig', desc: 'DNS enum', icon: '🌐' },
-    { name: 'github-clone', desc: 'Clone from GitHub', icon: '🐙' },
-    { name: 'install-tool', desc: 'Install from GitHub', icon: '⬇️' },
-    { name: 'python', desc: 'Python code', icon: '🐍' },
-    { name: 'node', desc: 'Node.js code', icon: '🟢' },
-    { name: 'bash', desc: 'Shell commands', icon: '💻' },
+    { name: 'dig', desc: 'DNS lookup', icon: '🌍' },
+    { name: 'whois', desc: 'Domain info', icon: '📋' },
+    { name: 'nslookup', desc: 'DNS query', icon: '🔎' },
+    { name: 'hash-md5', desc: 'MD5 hash', icon: '#️⃣' },
+    { name: 'hash-sha256', desc: 'SHA256 hash', icon: '🔒' },
+    { name: 'base64', desc: 'Base64 encode', icon: '📄' },
+    { name: 'jwt-decode', desc: 'Decode JWT', icon: '🎫' },
+    { name: 'local-ip', desc: 'My IP address', icon: '📡' },
+    { name: 'geo', desc: 'Geolocation', icon: '📍' },
+    { name: 'js-exec', desc: 'Run JavaScript', icon: '⚡' },
+    { name: 'read-file', desc: 'Read local file', icon: '📂' },
+    { name: 'network-info', desc: 'Browser info', icon: '🖥️' },
+    { name: 'nmap', desc: 'Port scan (sim)', icon: '🔍' },
+    { name: 'sqlmap', desc: 'SQLi (sim)', icon: '💉' },
+    { name: 'hashcat', desc: 'Crack hash (sim)', icon: '🔐' },
   ];
 
   return (
@@ -267,30 +269,32 @@ export const BrowserAgent = () => {
             <Card className="bg-slate-900/50 border-red-500/30 p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-mono text-sm font-semibold text-red-400 flex items-center gap-2">
-                  <TerminalIcon className="w-4 h-4" /> Kali Tools
+                  <TerminalIcon className="w-4 h-4" /> Available Tools
+                  <span className="text-xs bg-red-600 text-white px-2 py-0.5 rounded-full">{tools.length}</span>
                 </h3>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setShowTools(!showTools)}
-                  className="text-xs text-slate-400 hover:text-red-400"
-                >
-                  {showTools ? 'Hide' : 'Show All'}
-                </Button>
               </div>
-              <div className={`grid grid-cols-2 gap-2 text-xs ${showTools ? '' : 'max-h-32 overflow-hidden'}`}>
+              <div className="grid grid-cols-2 gap-2 text-xs">
                 {tools.map((tool) => (
                   <div 
                     key={tool.name}
-                    className="flex items-center gap-2 p-2 rounded bg-slate-800/50 hover:bg-slate-800 cursor-pointer transition-colors"
+                    className="flex items-center gap-2 p-2 rounded bg-slate-800/50 hover:bg-red-900/30 hover:border-red-500/50 border border-transparent cursor-pointer transition-all"
                     onClick={() => {
                       console.log('[BrowserAgent] Tool clicked:', tool.name);
-                      sendMessage(`Run ${tool.name} ${tool.name === 'nmap' ? '-sS target.com' : tool.name === 'dirb' ? 'http://target.com' : ''}`);
+                      const params = tool.name === 'dig' ? 'example.com' : 
+                                   tool.name === 'whois' ? 'example.com' : 
+                                   tool.name === 'nslookup' ? 'example.com' :
+                                   tool.name === 'hash-md5' ? 'hello world' :
+                                   tool.name === 'hash-sha256' ? 'hello world' :
+                                   tool.name === 'base64' ? 'hello world' :
+                                   tool.name === 'jwt-decode' ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0' :
+                                   tool.name === 'curl' ? 'https://api.github.com' : '';
+                      sendMessage(`Run ${tool.name} ${params}`);
                     }}
+                    title="Click to run"
                   >
-                    <span>{tool.icon}</span>
+                    <span className="text-lg">{tool.icon}</span>
                     <div>
-                      <div className="font-mono text-cyan-400">{tool.name}</div>
+                      <div className="font-mono text-cyan-400 font-semibold">{tool.name}</div>
                       <div className="text-slate-500 text-[10px]">{tool.desc}</div>
                     </div>
                   </div>
