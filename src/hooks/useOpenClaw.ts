@@ -153,20 +153,20 @@ export const useOpenClaw = () => {
   }, []);
 
   // Send message without useCallback to always have latest state
-  const sendMessage = async (message: string, skipAgreementCheck = false) => {
-    console.log('[OpenClaw] sendMessage called, agreementAccepted:', agreementAcceptedRef.current, 'skipCheck:', skipAgreementCheck);
+  const sendMessage = async (message: string) => {
+    console.log('[OpenClaw] sendMessage called');
     
     if (!agentRef.current || status === 'loading') {
       setError(status === 'loading' ? 'Agent still initializing' : 'Agent not ready');
       return;
     }
     
-    // Only check agreement if not explicitly skipped (frontend handles it)
-    if (!skipAgreementCheck && !agreementAcceptedRef.current) {
-      console.log('[OpenClaw] Agreement not accepted, blocking message');
-      setError('You must accept the ethical hacking agreement first');
-      return;
-    }
+    // Agreement check disabled for testing
+    // if (!skipAgreementCheck && !agreementAcceptedRef.current) {
+    //   console.log('[OpenClaw] Agreement not accepted, blocking message');
+    //   setError('You must accept the ethical hacking agreement first');
+    //   return;
+    // }
 
     try {
       setStatus('thinking');

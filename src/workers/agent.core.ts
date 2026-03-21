@@ -36,7 +36,7 @@ export class OpenClawAgent {
   // Session-only storage
   private chatHistory: AgentMessage[] = [];
   private sessionMemory: Map<string, any> = new Map();
-  private ethicalAgreementAccepted = false;
+  private ethicalAgreementAccepted = true;  // DISABLED for testing
 
   async initialize(onProgress: (progress: number) => void) {
     try {
@@ -68,14 +68,15 @@ export class OpenClawAgent {
 
   acceptEthicalAgreement() {
     this.ethicalAgreementAccepted = true;
-    console.log('[Agent] Ethical agreement accepted');
+    console.log('[Agent] Ethical agreement accepted (disabled mode)');
   }
 
   async chat(message: string, context: string[] = [], onChunk: (chunk: string) => void) {
     if (!this.isInitialized) throw new Error('Agent not initialized');
-    if (!this.ethicalAgreementAccepted) {
-      throw new Error('Ethical hacking agreement must be accepted first');
-    }
+    // Agreement check disabled for testing
+    // if (!this.ethicalAgreementAccepted) {
+    //   throw new Error('Ethical hacking agreement must be accepted first');
+    // }
 
     const systemPrompt = `You are Dark Unicorn v3.0 - a REAL cybersecurity agent running locally in the browser.
 
@@ -154,9 +155,10 @@ Always remind users to ensure they have authorization.`;
   }
 
   async executeTool(tool: ToolDefinition) {
-    if (!this.ethicalAgreementAccepted) {
-      return { error: 'Ethical agreement not accepted' };
-    }
+    // Agreement check disabled for testing
+    // if (!this.ethicalAgreementAccepted) {
+    //   return { error: 'Ethical agreement not accepted' };
+    // }
 
     console.log('[Agent] Tool execution:', tool.tool, tool.params);
 

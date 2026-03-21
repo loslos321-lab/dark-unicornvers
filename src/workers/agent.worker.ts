@@ -79,9 +79,7 @@ const api = {
   },
 
   async acceptEthicalAgreement() {
-    if (!isInitialized) {
-      throw new Error('Agent not initialized');
-    }
+    // Always allow - agreement check disabled
     try {
       agent.acceptEthicalAgreement();
       return { accepted: true };

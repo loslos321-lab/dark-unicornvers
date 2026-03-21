@@ -33,7 +33,7 @@ export const BrowserAgent = () => {
 
   const [initMessage, setInitMessage] = useState<string>('');
   const [showTools, setShowTools] = useState(false);
-  const [showAgreement, setShowAgreement] = useState(true);
+  const [showAgreement, setShowAgreement] = useState(false);  // DISABLED for testing
 
   useEffect(() => {
     switch (status) {
@@ -204,14 +204,8 @@ export const BrowserAgent = () => {
               loading={status === 'thinking'}
               error={error}
               onSendMessage={(msg) => {
-                console.log('[BrowserAgent] onSendMessage called, agreementAccepted:', agreementAccepted);
-                if (!agreementAccepted) {
-                  console.log('[BrowserAgent] Blocking message - agreement not accepted');
-                  setError?.('You must accept the ethical hacking agreement first');
-                  return;
-                }
-                // Skip agreement check in hook since we checked here
-                sendMessage(msg, true);
+                console.log('[BrowserAgent] onSendMessage called');
+                sendMessage(msg);
               }}
               onClear={clearHistory}
               isReady={isReady}
@@ -290,11 +284,7 @@ export const BrowserAgent = () => {
                     key={tool.name}
                     className="flex items-center gap-2 p-2 rounded bg-slate-800/50 hover:bg-slate-800 cursor-pointer transition-colors"
                     onClick={() => {
-                      console.log('[BrowserAgent] Tool clicked, agreementAccepted:', agreementAccepted);
-                      if (!agreementAccepted) {
-                        console.log('[BrowserAgent] Blocking tool - agreement not accepted');
-                        return;
-                      }
+                      console.log('[BrowserAgent] Tool clicked:', tool.name);
                       sendMessage(`Run ${tool.name} ${tool.name === 'nmap' ? '-sS target.com' : tool.name === 'dirb' ? 'http://target.com' : ''}`);
                     }}
                   >
