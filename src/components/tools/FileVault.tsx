@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { encryptMessage, decryptMessage } from "@/lib/crypto";
 import { toast } from "sonner";
 import ToolLayout from "@/components/ToolLayout";
+import { validateFileSize } from "@/lib/xss";
 
 export default function FileVault() {
   const [file, setFile] = useState<File | null>(null);
@@ -11,9 +12,23 @@ export default function FileVault() {
   const [processing, setProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const MAX_FILE_SIZE_MB = 10;
+
   const handleEncrypt = async () => {
     if (!file || !password) {
       toast.error("Select file and enter password");
+      return;
+    }
+    
+    // Security: Validate file size
+    if (!validateFileSize(file, MAX_FILE_SIZE_MB)) {
+      toast.error(`File too large (max ${MAX_FILE_SIZE_MB}MB)`);
+      return;
+    }
+    
+    // Security: Validate password strength
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
       return;
     }
     
@@ -47,6 +62,12 @@ export default function FileVault() {
   const handleDecrypt = async () => {
     if (!file || !password) {
       toast.error("Select file and enter password");
+      return;
+    }
+    
+    // Security: Validate file size
+    if (!validateFileSize(file, MAX_FILE_SIZE_MB)) {
+      toast.error(`File too large (max ${MAX_FILE_SIZE_MB}MB)`);
       return;
     }
     
@@ -136,7 +157,7 @@ export default function FileVault() {
             <FileLock className="w-4 h-4 text-primary mt-0.5" />
             <p className="text-xs text-muted-foreground font-mono leading-relaxed">
               Files are encrypted client-side using AES-256-GCM before leaving your browser. 
-              The encrypted file will have .encrypted extension. Large files (&gt;10MB) may take a moment.
+              The encrypted file will have .encrypted extension. Max file size: {MAX_FILE_SIZE_MB}MB.
             </p>
           </div>
         </div>

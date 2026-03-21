@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DoorOpen, Plus, Lock, Send, LogOut, RefreshCw, Users, Copy, Check } from "lucide-react";
+import { escapeHtml, validateLength, RateLimiter } from "@/lib/xss";
 
 interface Room {
   id: string;
@@ -33,6 +34,7 @@ export default function HostedRooms() {
   const [copied, setCopied] = useState(false);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const rateLimiter = useRef(new RateLimiter());
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -134,13 +136,23 @@ export default function HostedRooms() {
 
   const sendMessage = async () => {
     if (!chatInput.trim() || !channelRef.current) return;
+    
+    // Security: Rate limiting
+    if (!rateLimiter.current.canProceed('sendMessage', 10, 60000)) {
+      toast.error("Rate limit exceeded. Please wait a minute.");
+      return;
+    }
+    
+    // Security: Validate and sanitize input
+    const sanitizedInput = validateLength(chatInput.trim(), 1000);
+    
     await channelRef.current.send({
       type: "broadcast",
       event: "chat",
       payload: {
         id: crypto.randomUUID(),
         sender: username,
-        text: chatInput.trim(),
+        text: sanitizedInput,
         timestamp: Date.now(),
       },
     });
@@ -184,18 +196,18 @@ export default function HostedRooms() {
                 m.sender === username ? "items-end" : "items-start"
               }`}
             >
-              <span className="text-xs text-muted-foreground font-mono mb-0.5">
-                {m.sender === username ? "you" : m.sender}
-              </span>
+              <span 
+                className="text-xs text-muted-foreground font-mono mb-0.5"
+                dangerouslySetInnerHTML={{ __html: m.sender === username ? "you" : escapeHtml(m.sender) }}
+              />
               <div
                 className={`px-3 py-1.5 rounded-lg text-xs font-mono max-w-[85%] break-words ${
                   m.sender === username
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-foreground border border-border"
                 }`}
-              >
-                {m.text}
-              </div>
+                dangerouslySetInnerHTML={{ __html: escapeHtml(m.text) }}
+              />
               <span className="text-xs text-muted-foreground/50 mt-0.5">
                 {new Date(m.timestamp).toLocaleTimeString()}
               </span>

@@ -15,6 +15,7 @@ export const useOpenClaw = () => {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
   const [sessionInfo, setSessionInfo] = useState<any>(null);
   const [agreementAccepted, setAgreementAccepted] = useState(false);
+  const agreementAcceptedRef = useRef(false);
 
   const initializeAgent = useCallback(async () => {
     try {
@@ -76,6 +77,15 @@ export const useOpenClaw = () => {
               workerRef.current = worker;
               agentRef.current = wrappedAgent;
               console.log('[OpenClaw] Agent initialized successfully');
+              
+              // Sync agreement if already accepted locally
+              if (agreementAcceptedRef.current) {
+                console.log('[OpenClaw] Syncing pre-accepted agreement to worker...');
+                wrappedAgent.acceptEthicalAgreement?.().catch((err: any) => {
+                  console.warn('[OpenClaw] Post-init agreement sync failed:', err?.message);
+                });
+              }
+              
               setStatus('ready');
               setError(null);
               retryCountRef.current = 0;
@@ -125,8 +135,9 @@ export const useOpenClaw = () => {
   }, [initializeAgent]);
 
   const acceptAgreement = useCallback(async () => {
-    // Set local state immediately
+    // Set both state and ref immediately
     setAgreementAccepted(true);
+    agreementAcceptedRef.current = true;
     console.log('[OpenClaw] Ethical agreement accepted (local)');
     
     // Also notify worker if available
@@ -142,14 +153,14 @@ export const useOpenClaw = () => {
   }, []);
 
   const sendMessage = useCallback(async (message: string) => {
-    console.log('[OpenClaw] sendMessage called, agreementAccepted:', agreementAccepted);
+    console.log('[OpenClaw] sendMessage called, agreementAccepted:', agreementAcceptedRef.current);
     
     if (!agentRef.current || status === 'loading') {
       setError(status === 'loading' ? 'Agent still initializing' : 'Agent not ready');
       return;
     }
     
-    if (!agreementAccepted) {
+    if (!agreementAcceptedRef.current) {
       console.log('[OpenClaw] Agreement not accepted, blocking message');
       setError('You must accept the ethical hacking agreement first');
       return;

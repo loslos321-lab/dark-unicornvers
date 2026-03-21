@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Send, Trash2 } from 'lucide-react';
+import { escapeHtml } from '@/lib/xss';
 
 interface AgentChatProps {
   messages: Array<{ role: string; content: string }>;
@@ -84,9 +85,8 @@ export const AgentChat = ({
                       ? 'bg-cyan-950 bg-opacity-50 text-cyan-100 ml-auto'
                       : 'bg-lime-950 bg-opacity-30 text-lime-100'
                   }`}
-                >
-                  {msg.content}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: escapeHtml(msg.content) }}
+                />
               </div>
             ))
           )}

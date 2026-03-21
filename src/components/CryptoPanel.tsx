@@ -4,6 +4,7 @@ import { Lock, Unlock, Send, Download, Upload, Hash, Users, Copy, Check } from "
 import { encryptMessage, decryptMessage, embedInCanvas, extractFromImage } from "@/lib/crypto";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { validateFileSize } from "@/lib/xss";
 
 interface Message {
   id: string;
@@ -127,6 +128,21 @@ export default function CryptoPanel({ canvasRef }: { canvasRef: React.RefObject<
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    // Security: Validate file size (max 5MB)
+    if (!validateFileSize(file, 5)) {
+      toast.error("File too large (max 5MB)");
+      e.target.value = "";
+      return;
+    }
+    
+    // Security: Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Only image files are allowed");
+      e.target.value = "";
+      return;
+    }
+    
     const img = new Image();
     img.onload = () => {
       try {

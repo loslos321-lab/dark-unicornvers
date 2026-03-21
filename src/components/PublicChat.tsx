@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Globe, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { escapeHtml, validateLength, RateLimiter } from "@/lib/xss";
 
 interface ChatMessage {
   id: string;
@@ -17,6 +18,7 @@ export default function PublicChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState("");
   const [username] = useState(() => "anon-" + Math.random().toString(36).slice(2, 6));
+  const rateLimiter = useRef(new RateLimiter());
   const [connected, setConnected] = useState(false);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -46,13 +48,23 @@ export default function PublicChat() {
 
   const sendMessage = () => {
     if (!text.trim() || !channelRef.current) return;
+    
+    // Security: Rate limiting
+    if (!rateLimiter.current.canProceed('sendMessage', 10, 60000)) {
+      toast.error("Rate limit exceeded. Please wait a minute.");
+      return;
+    }
+    
+    // Security: Validate and sanitize input
+    const sanitizedText = validateLength(text.trim(), 1000);
+    
     channelRef.current.send({
       type: "broadcast",
       event: "chat",
       payload: {
         id: crypto.randomUUID(),
         sender: username,
-        text: text.trim(),
+        text: sanitizedText,
         timestamp: Date.now(),
       },
     });
@@ -101,7 +113,7 @@ export default function PublicChat() {
             }`}
           >
             <div className="flex justify-between items-center mb-0.5">
-              <span className="text-xs font-mono text-accent">{m.sender}</span>
+              <span className="text-xs font-mono text-accent" dangerouslySetInnerHTML={{ __html: escapeHtml(m.sender) }} />
               <span className="text-xs text-muted-foreground">
                 {new Date(m.timestamp).toLocaleTimeString()}
               </span>
