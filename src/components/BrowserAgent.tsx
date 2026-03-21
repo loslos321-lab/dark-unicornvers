@@ -16,6 +16,7 @@ export const BrowserAgent = () => {
     messages,
     downloadProgress,
     error,
+    setError,
     sendMessage,
     clearHistory,
     isReady,
@@ -206,9 +207,11 @@ export const BrowserAgent = () => {
                 console.log('[BrowserAgent] onSendMessage called, agreementAccepted:', agreementAccepted);
                 if (!agreementAccepted) {
                   console.log('[BrowserAgent] Blocking message - agreement not accepted');
+                  setError?.('You must accept the ethical hacking agreement first');
                   return;
                 }
-                sendMessage(msg);
+                // Skip agreement check in hook since we checked here
+                sendMessage(msg, true);
               }}
               onClear={clearHistory}
               isReady={isReady}
