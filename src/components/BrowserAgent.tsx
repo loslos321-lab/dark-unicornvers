@@ -76,8 +76,8 @@ export const BrowserAgent = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-black to-slate-950 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8" style={{backgroundColor: '#000000'}}>
+      <div className="max-w-6xl mx-auto space-y-6" style={{backgroundColor: '#0a0a0a', padding: '20px', borderRadius: '8px'}}>
         
         {/* Ethical Agreement Modal */}
       {showAgreement && (
@@ -266,18 +266,27 @@ export const BrowserAgent = () => {
             </Card>
 
             {/* Tools Card */}
-            <Card className="bg-slate-900/50 border-red-500/30 p-4">
+            <Card className="p-4" style={{backgroundColor: '#1a1a2e', border: '1px solid #e94560'}}>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-mono text-sm font-semibold text-red-400 flex items-center gap-2">
+                <h3 className="font-mono text-sm font-semibold flex items-center gap-2" style={{color: '#e94560'}}>
                   <TerminalIcon className="w-4 h-4" /> Available Tools
-                  <span className="text-xs bg-red-600 text-white px-2 py-0.5 rounded-full">{tools.length}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full" style={{backgroundColor: '#e94560', color: 'white'}}>{tools.length}</span>
                 </h3>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {tools.map((tool) => (
                   <div 
                     key={tool.name}
-                    className="flex items-center gap-2 p-2 rounded bg-slate-800/50 hover:bg-red-900/30 hover:border-red-500/50 border border-transparent cursor-pointer transition-all"
+                    className="flex items-center gap-2 p-2 rounded cursor-pointer transition-all"
+                    style={{backgroundColor: '#16213e', border: '1px solid transparent'}}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#0f3460';
+                      e.currentTarget.style.border = '1px solid #e94560';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#16213e';
+                      e.currentTarget.style.border = '1px solid transparent';
+                    }}
                     onClick={() => {
                       console.log('[BrowserAgent] Tool clicked:', tool.name);
                       const params = tool.name === 'dig' ? 'example.com' : 
@@ -294,8 +303,8 @@ export const BrowserAgent = () => {
                   >
                     <span className="text-lg">{tool.icon}</span>
                     <div>
-                      <div className="font-mono text-cyan-400 font-semibold">{tool.name}</div>
-                      <div className="text-slate-500 text-[10px]">{tool.desc}</div>
+                      <div className="font-mono font-semibold" style={{color: '#00d9ff'}}>{tool.name}</div>
+                      <div style={{color: '#8b92b9', fontSize: '10px'}}>{tool.desc}</div>
                     </div>
                   </div>
                 ))}
