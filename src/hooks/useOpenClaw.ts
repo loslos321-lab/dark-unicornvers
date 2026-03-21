@@ -152,7 +152,8 @@ export const useOpenClaw = () => {
     }
   }, []);
 
-  const sendMessage = useCallback(async (message: string) => {
+  // Send message without useCallback to always have latest state
+  const sendMessage = async (message: string) => {
     console.log('[OpenClaw] sendMessage called, agreementAccepted:', agreementAcceptedRef.current);
     
     if (!agentRef.current || status === 'loading') {
@@ -225,7 +226,7 @@ export const useOpenClaw = () => {
       setError(err.message || 'Operation failed');
       setStatus('ready');
     }
-  }, [messages, status]);
+  };
 
   const clearHistory = useCallback(async () => {
     setMessages([]);
