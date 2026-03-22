@@ -2,7 +2,7 @@ import {
   Shield, Lock, Key, FileLock, FileText, QrCode, 
   Target, Brain, BookOpen, Atom, BrainCircuit, 
   Gauge, Search, Split, Clipboard, Trophy, Sparkles,
-  ChevronRight, Zap, Terminal, Gamepad2
+  ChevronRight, Zap, Terminal, Gamepad2, Languages
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,41 @@ import { toast } from "sonner";
 
 // Tools organized by category
 const categories = [
+  {
+    id: "learning",
+    title: "LEARNING & EDUCATION",
+    description: "Learn languages and security",
+    neon: "cyan",
+    tools: [
+      {
+        key: "lingoquest",
+        title: "LingoQuest",
+        description: "Russisch-Deutsch Lernplattform mit TTS, Aussprache-Check und Grammatik-Übungen.",
+        icon: Languages,
+        path: "/lingoquest",
+        ready: true,
+        badge: "EDU",
+      },
+      {
+        key: "security-education",
+        title: "Security Education",
+        description: "Learn about token grabbers, phishing, and social engineering attacks.",
+        icon: BookOpen,
+        path: "/security-education",
+        ready: true,
+        badge: "EDU",
+      },
+      {
+        key: "social-engineering-quiz",
+        title: "Social Engineering Defense",
+        description: "Detect manipulation and CEO fraud in realistic simulations.",
+        icon: BrainCircuit,
+        path: "/tools/social-engineering-quiz",
+        ready: true,
+        badge: "QUIZ",
+      },
+    ]
+  },
   {
     id: "games",
     title: "GAMES & CHALLENGES",
@@ -45,32 +80,6 @@ const categories = [
         path: "/tools/crypto-speedrun",
         ready: true,
         badge: "CHALLENGE",
-      },
-    ]
-  },
-  {
-    id: "learning",
-    title: "LEARNING & DEFENSE",
-    description: "Master the art of cyber defense",
-    neon: "cyan",
-    tools: [
-      {
-        key: "security-education",
-        title: "Security Education",
-        description: "Learn about token grabbers, phishing, and social engineering attacks.",
-        icon: BookOpen,
-        path: "/security-education",
-        ready: true,
-        badge: "EDU",
-      },
-      {
-        key: "social-engineering-quiz",
-        title: "Social Engineering Defense",
-        description: "Detect manipulation and CEO fraud in realistic simulations.",
-        icon: BrainCircuit,
-        path: "/tools/social-engineering-quiz",
-        ready: true,
-        badge: "QUIZ",
       },
     ]
   },
@@ -200,7 +209,7 @@ const categories = [
         description: "Local AI pentesting assistant with Kali tools. 100% browser-based.",
         icon: Brain,
         path: "/browser-agent",
-        ready: false,
+        ready: true,
         badge: "AI",
       },
       {

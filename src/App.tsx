@@ -72,6 +72,7 @@ const App = () => (
             <Route path="/tools/physics-sandbox" element={<PhysicsSandbox />} />
             <Route path="/tools/hash-lab" element={<HashLab />} />
             <Route path="/tools/password-game" element={<PasswordGame />} />
+            <Route path="/lingoquest" element={<LingoQuestLayout />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
